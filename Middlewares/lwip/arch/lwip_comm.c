@@ -78,6 +78,7 @@ void lwip_comm_default_ip_set(__lwip_dev *lwipx)
     lwipx->gateway[1] = 168;
     lwipx->gateway[2] = 1;
     lwipx->gateway[3] = 1;
+    lwipx->tcp_port = NET_CONFIG_DEFAULT_TCP_PORT;
     lwipx->dhcpstatus = 0XFF; /* 当前工程固定使用静态IP */
 
     /* 如果 Flash 中存在上位机保存过的合法网络配置，则覆盖默认值。
@@ -99,6 +100,7 @@ void lwip_comm_default_ip_set(__lwip_dev *lwipx)
         lwipx->gateway[1] = saved_config.gateway[1];
         lwipx->gateway[2] = saved_config.gateway[2];
         lwipx->gateway[3] = saved_config.gateway[3];
+        lwipx->tcp_port = saved_config.tcp_port;
     }
 }
 

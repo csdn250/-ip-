@@ -22,7 +22,6 @@
 
 
 #define UDP_DISCOVER_PORT          9999U
-#define UDP_DISCOVER_TCP_PORT      8080U
 #define UDP_DISCOVER_REQUEST       "DISCOVER_DEVICE"
 #define UDP_DISCOVER_REQUEST_ALT   "FIND_STM32"
 #define UDP_DISCOVER_DEVICE_NAME   "STM32H743_RAW_TCP_ADC"
@@ -71,7 +70,7 @@ static uint16_t comm_lwip_udp_discover_format_reply(char *aBuffer, uint16_t aSiz
 				   g_lwipdev.mac[3],
 				   g_lwipdev.mac[4],
 				   g_lwipdev.mac[5],
-				   UDP_DISCOVER_TCP_PORT,
+				   g_lwipdev.tcp_port,
 				   UDP_DISCOVER_PORT);
 
 	if ((len <= 0) || (len >= (int)aSize))

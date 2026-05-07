@@ -37,7 +37,6 @@
 
 
 #define LWIP_DEMO_RX_BUFSIZE         2000   /* 定义最大接收数据长度 */
-#define LWIP_DEMO_PORT               8080   /* 定义连接的目的/本地端口号 */
 
 /* 接收数据缓冲区 */
 uint8_t g_lwip_demo_recvbuf[LWIP_DEMO_RX_BUFSIZE];  
@@ -71,7 +70,7 @@ struct tcp_server_struct
 /**
  * @brief TCP 客户端连接建立回调。
  *
- * 上位机连接 MCU_IP:8080 成功后，lwIP 调用本函数。
+ * 上位机连接 MCU_IP:g_lwipdev.tcp_port 成功后，lwIP 调用本函数。
  * 本函数负责注册该连接后续的 recv/sent/error/poll 回调，
  * 并把 newpcb 交给 comm_lwip_tcp 桥接层保存。
  */
@@ -99,7 +98,7 @@ void lwip_tcp_server_remove_timewait(void);
  *
  * 本函数只负责网络接入和 lwIP 回调注册：
  * - 创建 TCP PCB。
- * - 绑定本地 8080 端口。
+ * - 绑定本地 g_lwipdev.tcp_port 端口。
  * - 进入监听状态。
  * - 注册 accept/recv/sent/error/poll 回调。
  *
@@ -127,15 +126,15 @@ void lwip_demo(void)
 
     sprintf((char *)tbuf, "Server IP:%d.%d.%d.%d", g_lwipdev.ip[0], g_lwipdev.ip[1], g_lwipdev.ip[2], g_lwipdev.ip[3]); /* 服务器IP */
     lcd_show_string(5, 130, lcddev.width - 10, 24, 24, tbuf, g_point_color);
-    sprintf((char *)tbuf, "Server Port:%d", LWIP_DEMO_PORT);                                                            /* 服务器端口号 */
+    sprintf((char *)tbuf, "Server Port:%d", g_lwipdev.tcp_port);                                                        /* 服务器端口号 */
     lcd_show_string(5, 160, lcddev.width - 10, 24, 24, tbuf, g_point_color);
     /* 创建 TCP 控制块。PCB 是 lwIP 用于维护一个 TCP 端点状态的核心对象。 */
     tcppcbnew = tcp_new();              /* 创建一个新的pcb */
 
     if (tcppcbnew)                      /* 创建成功 */
     {
-        /* 绑定本地端口。IP_ADDR_ANY 表示允许上位机连接本机任意可用网卡 IP 的 8080 端口。 */
-        err = tcp_bind(tcppcbnew, IP_ADDR_ANY, LWIP_DEMO_PORT); /* 将本地IP与指定的端口号绑定在一起,IP_ADDR_ANY为绑定本地所有的IP地址 */
+        /* 绑定本地端口。IP_ADDR_ANY 表示允许上位机连接本机任意可用网卡 IP 的 TCP 服务端口。 */
+        err = tcp_bind(tcppcbnew, IP_ADDR_ANY, g_lwipdev.tcp_port); /* 将本地IP与指定的端口号绑定在一起,IP_ADDR_ANY为绑定本地所有的IP地址 */
 
         if (err == ERR_OK)              /* 绑定完成 */
         {
@@ -200,7 +199,7 @@ void lwip_demo(void)
 /**
  * @brief TCP 客户端连接建立回调。
  *
- * 上位机连接 MCU_IP:8080 成功后，lwIP 调用本函数。
+ * 上位机连接 MCU_IP:g_lwipdev.tcp_port 成功后，lwIP 调用本函数。
  * 本函数负责注册该连接后续的 recv/sent/error/poll 回调，
  * 并把 newpcb 交给 comm_lwip_tcp 桥接层保存。
  */

@@ -14,8 +14,9 @@
 
 
 #define NET_CONFIG_MAGIC    0x54454E41UL
-#define NET_CONFIG_VERSION  1UL
+#define NET_CONFIG_VERSION  2UL
 #define NET_CONFIG_CRC_LEN  24U
+#define NET_CONFIG_PORT_MIN 1U
 
 
 typedef struct
@@ -25,7 +26,7 @@ typedef struct
 	uint32_t ip;
 	uint32_t netmask;
 	uint32_t gateway;
-	uint32_t flags;
+	uint32_t tcp_port;
 	uint32_t crc;
 	uint32_t reserved;
 } net_config_record_t;
@@ -113,6 +114,17 @@ static int net_config_mask_is_valid(const uint8_t aMask[4])
 }
 
 
+static int net_config_port_is_valid(uint16_t aPort)
+{
+	if (aPort < NET_CONFIG_PORT_MIN)
+	{
+		return 0;
+	}
+
+	return 1;
+}
+
+
 void net_config_get_default(net_config_t *aConfig)
 {
 	if (aConfig == 0)
@@ -134,6 +146,8 @@ void net_config_get_default(net_config_t *aConfig)
 	aConfig->gateway[1] = 168U;
 	aConfig->gateway[2] = 1U;
 	aConfig->gateway[3] = 1U;
+
+	aConfig->tcp_port = NET_CONFIG_DEFAULT_TCP_PORT;
 }
 
 
@@ -155,6 +169,11 @@ int net_config_validate(const net_config_t *aConfig)
 	}
 
 	if (!net_config_ip_is_valid(aConfig->gateway))
+	{
+		return 0;
+	}
+
+	if (!net_config_port_is_valid(aConfig->tcp_port))
 	{
 		return 0;
 	}
@@ -184,6 +203,7 @@ int net_config_load(net_config_t *aConfig)
 	net_config_unpack_ip(record.ip, aConfig->ip);
 	net_config_unpack_ip(record.netmask, aConfig->netmask);
 	net_config_unpack_ip(record.gateway, aConfig->gateway);
+	aConfig->tcp_port = (uint16_t)record.tcp_port;
 
 	return net_config_validate(aConfig) ? 0 : -1;
 }
@@ -205,7 +225,7 @@ int net_config_save(const net_config_t *aConfig)
 	record.ip = net_config_pack_ip(aConfig->ip);
 	record.netmask = net_config_pack_ip(aConfig->netmask);
 	record.gateway = net_config_pack_ip(aConfig->gateway);
-	record.flags = 0U;
+	record.tcp_port = aConfig->tcp_port;
 	record.crc = net_config_record_crc(&record);
 
 	return flash_storage_write(&record, sizeof(record));

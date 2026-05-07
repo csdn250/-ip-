@@ -172,7 +172,7 @@ int main(void)
 		printf("UDP discover init failed.\r\n");
 	}
 
-	/* 创建 TCP PCB，绑定 8080 端口，并注册 accept/recv/sent/error/poll 回调。 */
+	/* 创建 TCP PCB，绑定当前配置的 TCP 端口，并注册 accept/recv/sent/error/poll 回调。 */
 	lwip_demo();
 	lwip_test_ui(2);
 

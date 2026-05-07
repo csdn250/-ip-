@@ -104,11 +104,43 @@ static int device_service_parse_field_ip(const char *aLine, const char *aKey, ui
 }
 
 
+static int device_service_parse_field_u16(const char *aLine,
+										  const char *aKey,
+										  uint16_t *aValue,
+										  uint8_t aRequired)
+{
+	const char *pField = strstr(aLine, aKey);
+	char *pEnd;
+	unsigned long value;
+
+	if (pField == 0)
+	{
+		return (aRequired != 0U) ? -1 : 1;
+	}
+
+	pField += strlen(aKey);
+	value = strtoul(pField, &pEnd, 10);
+
+	if ((pEnd == pField) || (value > 65535UL))
+	{
+		return -1;
+	}
+
+	if ((*pEnd != '\0') && (*pEnd != ',') && (*pEnd != '\r') && (*pEnd != '\n'))
+	{
+		return -1;
+	}
+
+	*aValue = (uint16_t)value;
+	return 0;
+}
+
+
 static void device_service_format_current_net(char *aBuffer, uint16_t aSize)
 {
 	snprintf(aBuffer,
 			 aSize,
-			 "NET,IP=%d.%d.%d.%d,MASK=%d.%d.%d.%d,GW=%d.%d.%d.%d\r\n",
+			 "NET,IP=%d.%d.%d.%d,MASK=%d.%d.%d.%d,GW=%d.%d.%d.%d,TCP=%u\r\n",
 			 g_lwipdev.ip[0],
 			 g_lwipdev.ip[1],
 			 g_lwipdev.ip[2],
@@ -120,7 +152,8 @@ static void device_service_format_current_net(char *aBuffer, uint16_t aSize)
 			 g_lwipdev.gateway[0],
 			 g_lwipdev.gateway[1],
 			 g_lwipdev.gateway[2],
-			 g_lwipdev.gateway[3]);
+			 g_lwipdev.gateway[3],
+			 g_lwipdev.tcp_port);
 }
 
 
@@ -134,6 +167,7 @@ static void device_service_apply_config_to_ram(const net_config_t *aConfig)
 	memcpy(g_lwipdev.ip, aConfig->ip, sizeof(g_lwipdev.ip));
 	memcpy(g_lwipdev.netmask, aConfig->netmask, sizeof(g_lwipdev.netmask));
 	memcpy(g_lwipdev.gateway, aConfig->gateway, sizeof(g_lwipdev.gateway));
+	g_lwipdev.tcp_port = aConfig->tcp_port;
 }
 
 
@@ -150,9 +184,13 @@ static void device_service_handle_set_net(const char *aLine)
 {
 	net_config_t config;
 
+	config.tcp_port = g_lwipdev.tcp_port;
+
 	if ((device_service_parse_field_ip(aLine, "IP=", config.ip) != 0) ||
 		(device_service_parse_field_ip(aLine, "MASK=", config.netmask) != 0) ||
-		(device_service_parse_field_ip(aLine, "GW=", config.gateway) != 0))
+		(device_service_parse_field_ip(aLine, "GW=", config.gateway) != 0) ||
+		(device_service_parse_field_u16(aLine, "PORT=", &config.tcp_port, 0U) < 0) ||
+		(device_service_parse_field_u16(aLine, "TCP=", &config.tcp_port, 0U) < 0))
 	{
 		device_service_send_text("ERR,BAD_NET_FORMAT\r\n");
 		return;
