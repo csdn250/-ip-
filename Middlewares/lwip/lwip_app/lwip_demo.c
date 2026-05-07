@@ -203,6 +203,20 @@ void lwip_demo(void)
  * 本函数负责注册该连接后续的 recv/sent/error/poll 回调，
  * 并把 newpcb 交给 comm_lwip_tcp 桥接层保存。
  */
+/**
+ * @brief TCP 客户端连接建立后的处理入口。
+ *
+ * @param arg    tcp_arg() 传入的用户参数，当前未使用。
+ * @param newpcb lwIP 为本次连接创建的 TCP 控制块。
+ * @param err    lwIP 传入的错误码，当前未使用。
+ *
+ * @retval ERR_OK  连接状态创建成功，并且已经注册后续回调。
+ * @retval ERR_MEM 连接状态内存分配失败。
+ *
+ * 本函数处在 TCP 三次握手完成之后。它负责为该连接注册 recv、sent、err、poll
+ * 回调，并把 newpcb 同步给 `comm_lwip_tcp.c`，后续业务层发送 ADC 数据时就会
+ * 通过这个 PCB 调用 tcp_write()。
+ */
 err_t lwip_tcp_server_accept(void *arg, struct tcp_pcb *newpcb, err_t err)
 {
     err_t ret_err;
@@ -252,6 +266,21 @@ err_t lwip_tcp_server_accept(void *arg, struct tcp_pcb *newpcb, err_t err)
  * - pbuf 中保存的是上位机发送的 TCP payload。
  * - 本函数只做 pbuf 链复制和桥接转发，不解析业务命令。
  * - 业务命令解析应放到 device_service_on_rx()。
+ */
+/**
+ * @brief TCP 数据接收回调。
+ *
+ * @param arg  当前连接对应的 `tcp_server_struct`。
+ * @param tpcb 当前连接的 TCP 控制块。
+ * @param p    lwIP 接收 pbuf。为 NULL 时表示对端关闭连接。
+ * @param err  lwIP 接收状态。
+ *
+ * @retval ERR_OK  本次接收处理完成。
+ * @retval 其他    透传 lwIP 错误码。
+ *
+ * 进入本函数时，lwIP 已经完成 Ethernet/IP/TCP 解封装，pbuf 中保存的是
+ * 上位机发送的应用层 payload。本函数只负责拷贝 pbuf 链、通知 lwIP 已接收、
+ * 释放 pbuf，并把 payload 转交给 `comm_lwip_tcp_on_receive()`。
  */
 err_t lwip_tcp_server_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err)
 {
@@ -334,6 +363,15 @@ err_t lwip_tcp_server_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_
  * @param       err ：错误码
  * @retval      无
  */
+/**
+ * @brief TCP 连接异常回调。
+ *
+ * @param arg 当前连接对应的 `tcp_server_struct`。
+ * @param err lwIP 错误码。
+ *
+ * 该回调通常表示连接已经被 lwIP 异常终止，不能再调用 tcp_close()。
+ * 本函数只释放连接状态内存，并清空当前客户端 PCB。
+ */
 void lwip_tcp_server_error(void *arg, err_t err)
 {
     LWIP_UNUSED_ARG(err);
@@ -347,6 +385,17 @@ void lwip_tcp_server_error(void *arg, err_t err)
  * @brief       lwIP数据发送，用户应用程序调用此函数来发送数据
  * @param       tpcb ：TCP控制块
  * @retval      返回值:0，成功；其他，失败
+ */
+/**
+ * @brief 发送原例程保留的测试字符串。
+ *
+ * @param tpcb 当前 TCP 连接控制块。
+ *
+ * @retval ERR_OK  测试数据已提交发送。
+ * @retval ERR_ABRT 连接状态为空，已终止连接。
+ *
+ * NOTE：当前项目的 ADC 数据和命令回复主要通过 `comm_lwip_tcp_send_impl()`
+ * 发送。本函数保留给 KEY0 手动发送 `ALIENTEK DATA` 的原例程测试入口。
  */
 err_t lwip_tcp_server_usersent(struct tcp_pcb *tpcb)
 {
@@ -380,6 +429,17 @@ err_t lwip_tcp_server_usersent(struct tcp_pcb *tpcb)
  * @param       tpcb ：TCP控制块
  * @retval      无
  */
+/**
+ * @brief TCP poll 周期回调。
+ *
+ * @param arg  当前连接对应的 `tcp_server_struct`。
+ * @param tpcb 当前 TCP 连接控制块。
+ *
+ * @retval ERR_OK poll 处理完成。
+ *
+ * lwIP 会周期性调用本函数。当前只在连接进入关闭状态时，统一调用
+ * `lwip_tcp_server_connection_close()` 收尾。
+ */
 err_t lwip_tcp_server_poll(void *arg, struct tcp_pcb *tpcb)
 {
     err_t ret_err;
@@ -402,6 +462,17 @@ err_t lwip_tcp_server_poll(void *arg, struct tcp_pcb *tpcb)
  * @param       len  ：发送的长度
  * @retval      无
  */
+/**
+ * @brief TCP 已发送数据被对端 ACK 后的回调。
+ *
+ * @param arg  当前连接对应的 `tcp_server_struct`。
+ * @param tpcb 当前 TCP 连接控制块。
+ * @param len  本次被确认的数据长度。
+ *
+ * @retval ERR_OK 回调处理完成。
+ *
+ * 如果连接状态中仍有 pbuf 待发送，则继续调用 `lwip_tcp_server_senddata()`。
+ */
 err_t lwip_tcp_server_sent(void *arg, struct tcp_pcb *tpcb, u16_t len)
 {
     struct tcp_server_struct *es;
@@ -418,6 +489,15 @@ err_t lwip_tcp_server_sent(void *arg, struct tcp_pcb *tpcb, u16_t len)
  * @param       tpcb ：TCP控制块
  * @param       es   ：LWIP回调函数使用的结构体
  * @retval      无
+ */
+/**
+ * @brief 将连接状态中的 pbuf 数据提交给 lwIP 发送。
+ *
+ * @param tpcb 当前 TCP 连接控制块。
+ * @param es   当前连接状态结构体，内部的 `p` 指向待发送 pbuf 链。
+ *
+ * 本函数主要服务于原例程手动发送测试数据。它会在发送缓存允许的情况下，
+ * 逐个 pbuf 调用 tcp_write()，再调用 tcp_output() 推动发送。
  */
 void lwip_tcp_server_senddata(struct tcp_pcb *tpcb, struct tcp_server_struct *es)
 {
@@ -451,6 +531,15 @@ void lwip_tcp_server_senddata(struct tcp_pcb *tpcb, struct tcp_server_struct *es
  * @param       es   ：LWIP回调函数使用的结构体
  * @retval      无
  */
+/**
+ * @brief 正常关闭 TCP 连接并清理回调状态。
+ *
+ * @param tpcb 当前 TCP 连接控制块。
+ * @param es   当前连接状态结构体，函数内部负责释放。
+ *
+ * 本函数会注销 sent/recv/err/poll 回调，释放连接状态内存，并通知通信桥
+ * 当前 TCP 客户端已经不可用。
+ */
 void lwip_tcp_server_connection_close(struct tcp_pcb *tpcb, struct tcp_server_struct *es)
 {
     tcp_close(tpcb);
@@ -477,6 +566,12 @@ extern struct tcp_pcb *tcp_tw_pcbs;                 /* 在 tcp.c里面 */
  * @brief       强制删除TCP Server主动断开时的time wait
  * @param       无
  * @retval      无
+ */
+/**
+ * @brief 清理 TCP Server 主动断开后遗留的 TIME-WAIT PCB。
+ *
+ * 该函数来自原例程，用于快速释放处于 TIME-WAIT 状态的 TCP PCB，方便实验场景
+ * 下重复连接。正式产品中是否保留该逻辑，需要结合 TCP 可靠性要求评估。
  */
 void lwip_tcp_server_remove_timewait(void)
 {

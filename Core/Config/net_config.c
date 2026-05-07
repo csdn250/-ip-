@@ -32,6 +32,13 @@ typedef struct
 } net_config_record_t;
 
 
+/**
+ * @brief 将 4 字节 IPv4 地址打包为 32 位整数。
+ *
+ * @param aIp 输入 IP 数组，顺序为 a.b.c.d。
+ *
+ * @return 打包后的网络配置存储值。
+ */
 static uint32_t net_config_pack_ip(const uint8_t aIp[4])
 {
 	return ((uint32_t)aIp[0] << 24) |
@@ -41,6 +48,12 @@ static uint32_t net_config_pack_ip(const uint8_t aIp[4])
 }
 
 
+/**
+ * @brief 将 32 位整数还原为 4 字节 IPv4 地址。
+ *
+ * @param aValue Flash 记录中保存的 IP 整数。
+ * @param aIp    输出 IP 数组，长度必须至少为 4 字节。
+ */
 static void net_config_unpack_ip(uint32_t aValue, uint8_t aIp[4])
 {
 	aIp[0] = (uint8_t)(aValue >> 24);
@@ -50,6 +63,14 @@ static void net_config_unpack_ip(uint32_t aValue, uint8_t aIp[4])
 }
 
 
+/**
+ * @brief 计算 CRC32 校验值。
+ *
+ * @param aData 输入数据首地址。
+ * @param aLen  输入数据长度，单位字节。
+ *
+ * @return CRC32 结果，用于判断 Flash 配置记录是否完整。
+ */
 static uint32_t net_config_crc32(const uint8_t *aData, uint32_t aLen)
 {
 	uint32_t crc = 0xFFFFFFFFUL;
@@ -78,12 +99,27 @@ static uint32_t net_config_crc32(const uint8_t *aData, uint32_t aLen)
 }
 
 
+/**
+ * @brief 计算网络配置记录的 CRC。
+ *
+ * @param aRecord 待校验记录。
+ *
+ * @return 记录前 NET_CONFIG_CRC_LEN 字节的 CRC32。
+ */
 static uint32_t net_config_record_crc(const net_config_record_t *aRecord)
 {
 	return net_config_crc32((const uint8_t *)aRecord, NET_CONFIG_CRC_LEN);
 }
 
 
+/**
+ * @brief 校验 IPv4 地址是否适合作为普通设备地址。
+ *
+ * @param aIp 待校验 IP。
+ *
+ * @retval 1 合法。
+ * @retval 0 非法，例如 0.x.x.x、127.x.x.x、组播地址或全 255。
+ */
 static int net_config_ip_is_valid(const uint8_t aIp[4])
 {
 	if ((aIp[0] == 0U) || (aIp[0] == 127U) || (aIp[0] >= 224U))
@@ -100,6 +136,14 @@ static int net_config_ip_is_valid(const uint8_t aIp[4])
 }
 
 
+/**
+ * @brief 校验子网掩码是否合法。
+ *
+ * @param aMask 待校验子网掩码。
+ *
+ * @retval 1 合法，且二进制形式为连续 1 后接连续 0。
+ * @retval 0 非法。
+ */
 static int net_config_mask_is_valid(const uint8_t aMask[4])
 {
 	uint32_t value = net_config_pack_ip(aMask);
@@ -114,6 +158,14 @@ static int net_config_mask_is_valid(const uint8_t aMask[4])
 }
 
 
+/**
+ * @brief 校验 TCP 端口是否合法。
+ *
+ * @param aPort 待校验端口。
+ *
+ * @retval 1 合法。
+ * @retval 0 非法。端口 0 表示未指定端口，不能作为 TCP Server 监听端口。
+ */
 static int net_config_port_is_valid(uint16_t aPort)
 {
 	if (aPort < NET_CONFIG_PORT_MIN)
@@ -125,6 +177,13 @@ static int net_config_port_is_valid(uint16_t aPort)
 }
 
 
+/**
+ * @brief 获取默认网络配置。
+ *
+ * @param aConfig 输出配置，由调用者提供存储空间。
+ *
+ * 默认值用于 Flash 中没有有效配置、用户恢复出厂网络配置等场景。
+ */
 void net_config_get_default(net_config_t *aConfig)
 {
 	if (aConfig == 0)
@@ -151,6 +210,14 @@ void net_config_get_default(net_config_t *aConfig)
 }
 
 
+/**
+ * @brief 校验完整网络配置是否合法。
+ *
+ * @param aConfig 待校验配置。
+ *
+ * @retval 1 IP、子网掩码、网关、TCP 端口均合法。
+ * @retval 0 配置为空或任一字段非法。
+ */
 int net_config_validate(const net_config_t *aConfig)
 {
 	if (aConfig == 0)
@@ -182,6 +249,14 @@ int net_config_validate(const net_config_t *aConfig)
 }
 
 
+/**
+ * @brief 从 Flash 读取网络配置。
+ *
+ * @param aConfig 输出配置，由调用者提供存储空间。
+ *
+ * @retval 0 读取成功，且 magic、version、crc、字段合法性全部通过。
+ * @retval <0 Flash 中没有有效配置，调用者应回退到默认配置。
+ */
 int net_config_load(net_config_t *aConfig)
 {
 	net_config_record_t record;
@@ -209,6 +284,14 @@ int net_config_load(net_config_t *aConfig)
 }
 
 
+/**
+ * @brief 保存网络配置到 Flash。
+ *
+ * @param aConfig 待保存配置，本函数只读取其内容。
+ *
+ * @retval 0 保存成功。
+ * @retval <0 参数非法或 Flash 写入失败。
+ */
 int net_config_save(const net_config_t *aConfig)
 {
 	net_config_record_t record;
@@ -232,6 +315,12 @@ int net_config_save(const net_config_t *aConfig)
 }
 
 
+/**
+ * @brief 清除 Flash 中保存的网络配置。
+ *
+ * @retval 0 擦除成功。
+ * @retval <0 Flash 擦除失败。
+ */
 int net_config_clear(void)
 {
 	return flash_storage_erase();

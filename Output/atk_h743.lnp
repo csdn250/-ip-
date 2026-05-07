@@ -79,6 +79,7 @@
 "..\..\output\protocol_text.o"
 "..\..\output\net_config.o"
 "..\..\output\comm_lwip_tcp.o"
+"..\..\output\comm_lwip_udp_discover.o"
 "..\..\output\sensor_adc_dma.o"
 "..\..\output\flash_storage.o"
 --library_type=microlib --strict --scatter "..\..\Output\atk_h743.sct"

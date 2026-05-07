@@ -54,7 +54,7 @@
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
           <DebugInformation>1</DebugInformation>
-          <BrowseInformation>0</BrowseInformation>
+          <BrowseInformation>1</BrowseInformation>
           <ListingPath>..\..\Output\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
@@ -873,6 +873,21 @@
               <FileName>readme.txt</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\readme.txt</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Core/Bridge</GroupName>
+          <Files>
+            <File>
+              <FileName>comm_bridge.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\Core\Bridge\comm_bridge.h</FilePath>
+            </File>
+            <File>
+              <FileName>sensor_bridge.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\Core\Bridge\sensor_bridge.h</FilePath>
             </File>
           </Files>
         </Group>

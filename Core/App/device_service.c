@@ -20,17 +20,28 @@
 
 
 /* ADC 主动上报周期。该周期属于业务策略，不属于 ADC 驱动或 TCP 驱动。 */
-#define DEVICE_SERVICE_ADC_SEND_INTERVAL  2000U
+#define DEVICE_SERVICE_ADC_SEND_INTERVAL  0U
 #define DEVICE_SERVICE_RX_LINE_SIZE       192U
 
 
 static const comm_bridge_t *s_comm;
 static const sensor_bridge_t *s_sensor;
 static uint32_t s_adc_send_tick;
+static uint32_t s_adc_frame_seq;
+static adc_sample_t s_adc_sample;
+static uint8_t s_adc_frame[PROTOCOL_ADC_BINARY_FRAME_SIZE];
 static char s_rx_line[DEVICE_SERVICE_RX_LINE_SIZE];
 static uint16_t s_rx_line_len;
 
 
+/**
+ * @brief 通过当前通信桥发送一段以 `\0` 结尾的文本。
+ *
+ * @param aText 待发送字符串，由调用者维护生命周期，本函数不保存该指针。
+ *
+ * 本函数是业务层内部的统一文本发送出口。调用前会检查通信桥、发送函数和
+ * 字符串指针是否有效，避免初始化顺序异常时访问空指针。
+ */
 static void device_service_send_text(const char *aText)
 {
 	if ((s_comm != 0) && (s_comm->send != 0) && (aText != 0))
@@ -40,6 +51,13 @@ static void device_service_send_text(const char *aText)
 }
 
 
+/**
+ * @brief 在回复上位机后执行软件复位。
+ *
+ * SET_NET、RESET_NET、REBOOT 等命令需要先让上位机收到确认消息，再让单片机
+ * 复位重新初始化 lwIP。这里固定延时 300 ms，给 tcp_write()/tcp_output()
+ * 留出发送时间。
+ */
 static void device_service_reboot_after_reply(void)
 {
 	/* 给 tcp_write()/tcp_output() 留出发送时间，避免上位机还没收到 OK 就复位。 */
@@ -48,6 +66,15 @@ static void device_service_reboot_after_reply(void)
 }
 
 
+/**
+ * @brief 解析点分十进制 IPv4 字符串。
+ *
+ * @param aText 输入字符串，格式示例为 `192.168.1.30`。
+ * @param aIp   输出 IP 数组，长度必须至少为 4 字节，由调用者提供。
+ *
+ * @retval 0 解析成功。
+ * @retval <0 输入为空、格式错误或字段超出 0~255。
+ */
 static int device_service_parse_ipv4(const char *aText, uint8_t aIp[4])
 {
 	char *pEnd;
@@ -90,6 +117,16 @@ static int device_service_parse_ipv4(const char *aText, uint8_t aIp[4])
 }
 
 
+/**
+ * @brief 从命令行中解析一个 IPv4 字段。
+ *
+ * @param aLine 输入命令行，例如 `SET_NET,IP=192.168.1.50,...`。
+ * @param aKey  字段关键字，例如 `IP=`、`MASK=`、`GW=`。
+ * @param aIp   输出 IP 数组，长度必须至少为 4 字节。
+ *
+ * @retval 0 解析成功。
+ * @retval <0 未找到字段或字段格式非法。
+ */
 static int device_service_parse_field_ip(const char *aLine, const char *aKey, uint8_t aIp[4])
 {
 	const char *pField = strstr(aLine, aKey);
@@ -104,6 +141,18 @@ static int device_service_parse_field_ip(const char *aLine, const char *aKey, ui
 }
 
 
+/**
+ * @brief 从命令行中解析一个 16 位无符号整数字段。
+ *
+ * @param aLine     输入命令行。
+ * @param aKey      字段关键字，例如 `PORT=` 或 `TCP=`。
+ * @param aValue    输出数值，由调用者提供存储空间。
+ * @param aRequired 是否必填；非 0 表示缺少字段时报错。
+ *
+ * @retval 0 字段存在且解析成功。
+ * @retval 1 字段不存在但允许省略。
+ * @retval <0 字段缺失且必填，或字段格式非法。
+ */
 static int device_service_parse_field_u16(const char *aLine,
 										  const char *aKey,
 										  uint16_t *aValue,
@@ -136,6 +185,15 @@ static int device_service_parse_field_u16(const char *aLine,
 }
 
 
+/**
+ * @brief 格式化当前网络配置回复帧。
+ *
+ * @param aBuffer 输出缓冲区，由调用者提供。
+ * @param aSize   输出缓冲区长度，单位字节。
+ *
+ * 生成的数据会通过 TCP 发送给上位机，格式如下：
+ * `NET,IP=...,MASK=...,GW=...,TCP=...\r\n`。
+ */
 static void device_service_format_current_net(char *aBuffer, uint16_t aSize)
 {
 	snprintf(aBuffer,
@@ -157,6 +215,14 @@ static void device_service_format_current_net(char *aBuffer, uint16_t aSize)
 }
 
 
+/**
+ * @brief 将网络配置同步到 lwIP 运行态结构体。
+ *
+ * @param aConfig 待同步配置，本函数只读取其内容，不保存指针。
+ *
+ * NOTE：该函数只更新 RAM 中的 g_lwipdev。真正让 lwIP netif 和 TCP Server
+ * 使用新配置，需要软件复位后重新初始化网络。
+ */
 static void device_service_apply_config_to_ram(const net_config_t *aConfig)
 {
 	if (aConfig == 0)
@@ -171,6 +237,12 @@ static void device_service_apply_config_to_ram(const net_config_t *aConfig)
 }
 
 
+/**
+ * @brief 处理查询当前网络配置命令。
+ *
+ * 命令来源为 `GET_NET\r\n` 或 `GET_NET?\r\n`。回复中包含当前 IP、子网掩码、
+ * 网关和 TCP 服务端口。
+ */
 static void device_service_handle_get_net(void)
 {
 	char reply[128];
@@ -180,6 +252,19 @@ static void device_service_handle_get_net(void)
 }
 
 
+/**
+ * @brief 处理上位机修改网络配置命令。
+ *
+ * @param aLine 完整命令行，示例：
+ * `SET_NET,IP=192.168.1.50,MASK=255.255.255.0,GW=192.168.1.1,PORT=8081`。
+ *
+ * 执行流程：
+ * 1. 解析 IP、MASK、GW。
+ * 2. 解析可选的 PORT= 或 TCP= 字段。
+ * 3. 校验配置合法性。
+ * 4. 写入 Flash。
+ * 5. 回复成功并自动复位。
+ */
 static void device_service_handle_set_net(const char *aLine)
 {
 	net_config_t config;
@@ -214,6 +299,12 @@ static void device_service_handle_set_net(const char *aLine)
 }
 
 
+/**
+ * @brief 处理恢复默认网络配置命令。
+ *
+ * 命令来源为 `RESET_NET\r\n` 或 `FACTORY_NET\r\n`。本函数会擦除 Flash 中保存
+ * 的网络配置，然后把 RAM 中的配置恢复为默认值，最后回复并自动复位。
+ */
 static void device_service_handle_reset_net(void)
 {
 	net_config_t config;
@@ -231,6 +322,14 @@ static void device_service_handle_reset_net(void)
 }
 
 
+/**
+ * @brief 分发一条完整应用层命令。
+ *
+ * @param aLine 可修改的命令行缓冲区。函数会原地去掉末尾空格、`\r`、`\n`。
+ *
+ * 本函数只处理已经按行聚合完成的命令。TCP 粘包和拆包处理放在
+ * device_service_on_rx() 中完成。
+ */
 static void device_service_handle_line(char *aLine)
 {
 	char *pEnd = aLine + strlen(aLine);
@@ -269,12 +368,22 @@ static void device_service_handle_line(char *aLine)
 }
 
 
+/**
+ * @brief 初始化设备业务服务层。
+ *
+ * @param aComm   通信桥实例，当前由 comm_lwip_tcp_get_bridge() 提供。
+ * @param aSensor 采集桥实例，当前由 sensor_adc_dma_get_bridge() 提供。
+ *
+ * 本函数只保存桥接接口，并调用采集桥初始化函数。业务层不直接依赖 TCP PCB
+ * 或 ADC DMA 缓冲区。
+ */
 void device_service_init(const comm_bridge_t *aComm, const sensor_bridge_t *aSensor)
 {
 	/* 只保存接口，不保存具体实现细节，便于后续替换通信或采集实现。 */
 	s_comm = aComm;
 	s_sensor = aSensor;
 	s_adc_send_tick = HAL_GetTick();
+	s_adc_frame_seq = 0U;
 	s_rx_line_len = 0U;
 
 	if ((s_sensor != 0) && (s_sensor->init != 0))
@@ -284,10 +393,17 @@ void device_service_init(const comm_bridge_t *aComm, const sensor_bridge_t *aSen
 }
 
 
+/**
+ * @brief 业务层周期调度函数。
+ *
+ * 主循环或 TCP Server 循环需要持续调用本函数。当前职责：
+ * 1. 判断上位机是否已经建立 TCP 连接。
+ * 2. 按 2 秒周期读取 ADC DMA 采样结果。
+ * 3. 调用协议层生成文本帧。
+ * 4. 通过通信桥发送给上位机。
+ */
 void device_service_poll(void)
 {
-	adc_sample_t sample;
-	char frame[192];
 	int len;
 
 	/* 防御式检查：底层桥接未绑定时直接返回，避免访问空指针。 */
@@ -311,20 +427,36 @@ void device_service_poll(void)
 	s_adc_send_tick = HAL_GetTick();
 
 	/* 仅当 DMA 已经完成一批采集时才会读取成功。 */
-	if (s_sensor->read(&sample) != 0)
+	if (s_sensor->read(&s_adc_sample) != 0)
 	{
 		return;
 	}
 
-	len = protocol_text_format_adc(&sample, frame, sizeof(frame));
+	len = protocol_text_format_adc_binary(&s_adc_sample,
+										  s_adc_frame_seq,
+										  s_adc_frame,
+										  sizeof(s_adc_frame));
 
-	if ((len > 0) && (len < (int)sizeof(frame)))
+	if ((len > 0) && (len <= (int)sizeof(s_adc_frame)))
 	{
-		s_comm->send((const uint8_t *)frame, (uint16_t)len);
+		(void)s_comm->send(s_adc_frame, (uint16_t)len);
+		++s_adc_frame_seq;
 	}
 }
 
 
+/**
+ * @brief 处理 lwIP 解封装后的 TCP payload。
+ *
+ * @param aData TCP payload 数据，不包含 Ethernet/IP/TCP 头。
+ * @param aLen  payload 长度，单位字节。
+ *
+ * TCP 是字节流，不保证一包就是一条命令。本函数负责：
+ * - 兼容无换行普通文本的回显测试。
+ * - 识别命令前缀。
+ * - 按 `\n` 聚合命令行。
+ * - 调用 device_service_handle_line() 执行业务命令。
+ */
 void device_service_on_rx(const uint8_t *aData, uint16_t aLen)
 {
 	uint16_t i;

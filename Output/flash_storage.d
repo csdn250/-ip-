@@ -1,6 +1,5 @@
 ..\..\output\flash_storage.o: ..\..\Core\Impl\flash_storage.c
-..\..\output\flash_storage.o: ..\..\Core\Impl\flash_storage.h
-..\..\output\flash_storage.o: F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\Bin\..\include\stdint.h
+..\..\output\flash_storage.o: F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\Bin\..\include\string.h
 ..\..\output\flash_storage.o: ..\..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal.h
 ..\..\output\flash_storage.o: ..\..\User\stm32h7xx_hal_conf.h
 ..\..\output\flash_storage.o: ..\..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_rcc.h
@@ -8,6 +7,7 @@
 ..\..\output\flash_storage.o: ..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include\stm32h7xx.h
 ..\..\output\flash_storage.o: ..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include\stm32h743xx.h
 ..\..\output\flash_storage.o: ..\..\Drivers\CMSIS\Include\core_cm7.h
+..\..\output\flash_storage.o: F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\Bin\..\include\stdint.h
 ..\..\output\flash_storage.o: ..\..\Drivers\CMSIS\Include\cmsis_version.h
 ..\..\output\flash_storage.o: ..\..\Drivers\CMSIS\Include\cmsis_compiler.h
 ..\..\output\flash_storage.o: ..\..\Drivers\CMSIS\Include\cmsis_armcc.h
@@ -105,4 +105,4 @@
 ..\..\output\flash_storage.o: ..\..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_ll_usb.h
 ..\..\output\flash_storage.o: ..\..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd_ex.h
 ..\..\output\flash_storage.o: ..\..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_hcd.h
-..\..\output\flash_storage.o: F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\Bin\..\include\string.h
+..\..\output\flash_storage.o: ..\..\Core\Impl\flash_storage.h

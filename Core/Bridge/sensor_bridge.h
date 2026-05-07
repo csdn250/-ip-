@@ -16,7 +16,8 @@
 #include <stdint.h>
 
 
-#define SENSOR_ADC_CHANNEL_NUM 4U
+#define SENSOR_ADC_CHANNEL_NUM 1U
+#define SENSOR_ADC_FRAME_SAMPLE_NUM 1000U
 
 
 /**
@@ -33,6 +34,8 @@ typedef struct
 {
 	uint16_t raw[SENSOR_ADC_CHANNEL_NUM];
 	uint32_t mv[SENSOR_ADC_CHANNEL_NUM];
+	uint16_t samples[SENSOR_ADC_FRAME_SAMPLE_NUM];
+	uint16_t sample_count;
 } adc_sample_t;
 
 

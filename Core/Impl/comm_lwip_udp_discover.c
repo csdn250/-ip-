@@ -32,10 +32,42 @@
 static struct udp_pcb *s_discover_pcb;
 
 
+/**
+ * @brief 判断 UDP payload 是否为设备发现口令。
+ *
+ * @param aBuffer 已经补 `\0` 的接收字符串。
+ *
+ * @retval 1 是支持的发现口令。
+ * @retval 0 不是发现口令。
+ */
 static int comm_lwip_udp_discover_is_request(const char *aBuffer)
 {
-	if ((strcmp(aBuffer, UDP_DISCOVER_REQUEST) == 0) ||
-		(strcmp(aBuffer, UDP_DISCOVER_REQUEST_ALT) == 0))
+	uint16_t len;
+
+	if (aBuffer == 0)
+	{
+		return 0;
+	}
+
+	len = (uint16_t)strlen(aBuffer);
+
+	while (len > 0U)
+	{
+		if ((aBuffer[len - 1U] != '\r') &&
+			(aBuffer[len - 1U] != '\n') &&
+			(aBuffer[len - 1U] != ' ') &&
+			(aBuffer[len - 1U] != '\t'))
+		{
+			break;
+		}
+
+		--len;
+	}
+
+	if (((strlen(UDP_DISCOVER_REQUEST) == len) &&
+		 (strncmp(aBuffer, UDP_DISCOVER_REQUEST, len) == 0)) ||
+		((strlen(UDP_DISCOVER_REQUEST_ALT) == len) &&
+		 (strncmp(aBuffer, UDP_DISCOVER_REQUEST_ALT, len) == 0)))
 	{
 		return 1;
 	}
@@ -44,6 +76,17 @@ static int comm_lwip_udp_discover_is_request(const char *aBuffer)
 }
 
 
+/**
+ * @brief 生成 UDP 设备发现回复帧。
+ *
+ * @param aBuffer 输出缓冲区，由调用者提供。
+ * @param aSize   输出缓冲区长度，单位字节。
+ *
+ * @return 实际写入长度；返回 0 表示缓冲区不足或格式化失败。
+ *
+ * 回复帧会带上当前 IP、MASK、GW、MAC、TCP 端口和 UDP 发现端口，上位机
+ * 应解析其中的 IP 和 TCP 字段后再建立 TCP 连接。
+ */
 static uint16_t comm_lwip_udp_discover_format_reply(char *aBuffer, uint16_t aSize)
 {
 	int len;
@@ -82,6 +125,17 @@ static uint16_t comm_lwip_udp_discover_format_reply(char *aBuffer, uint16_t aSiz
 }
 
 
+/**
+ * @brief 发送 UDP 发现回复。
+ *
+ * @param aPcb   UDP 控制块。
+ * @param aAddr  目标 IP 地址。
+ * @param aPort  目标 UDP 端口。
+ * @param aReply 回复数据首地址。
+ * @param aLen   回复数据长度。
+ *
+ * 本函数内部申请并释放发送 pbuf。调用者不需要管理 pbuf 生命周期。
+ */
 static void comm_lwip_udp_discover_send_reply(struct udp_pcb *aPcb,
 											  const ip_addr_t *aAddr,
 											  u16_t aPort,
@@ -104,6 +158,18 @@ static void comm_lwip_udp_discover_send_reply(struct udp_pcb *aPcb,
 }
 
 
+/**
+ * @brief UDP 发现接收回调。
+ *
+ * @param aArg  用户参数，当前未使用。
+ * @param aPcb  收到数据的 UDP 控制块。
+ * @param aPbuf lwIP 接收 pbuf，本函数负责释放。
+ * @param aAddr 发送方 IP 地址。
+ * @param aPort 发送方 UDP 端口。
+ *
+ * 收到合法发现口令后，本函数会先单播回复发送方，再广播回复一份，用于兼容
+ * 同一二层网络但 IP 网段不一致的设备发现阶段。
+ */
 static void comm_lwip_udp_discover_on_receive(void *aArg,
 											  struct udp_pcb *aPcb,
 											  struct pbuf *aPbuf,
@@ -153,6 +219,15 @@ static void comm_lwip_udp_discover_on_receive(void *aArg,
 }
 
 
+/**
+ * @brief 初始化 UDP 设备发现服务。
+ *
+ * @retval 0 初始化成功，或已经初始化过。
+ * @retval -1 UDP PCB 创建失败。
+ * @retval -2 UDP 端口绑定失败。
+ *
+ * 调用时机应在 lwip_comm_init() 成功之后，此时 netif、IP、MAC 已经准备好。
+ */
 int comm_lwip_udp_discover_init(void)
 {
 	err_t err;

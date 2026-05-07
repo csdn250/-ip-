@@ -19,6 +19,12 @@
 #include "sensor_bridge.h"
 
 
+#define PROTOCOL_ADC_SAMPLE_RATE_HZ      3200000UL
+#define PROTOCOL_ADC_BINARY_HEADER_SIZE  20U
+#define PROTOCOL_ADC_BINARY_FRAME_SIZE   (PROTOCOL_ADC_BINARY_HEADER_SIZE + \
+										  (SENSOR_ADC_FRAME_SAMPLE_NUM * 2U))
+
+
 /**
  * @brief 将 ADC 采样结果格式化为上位机可解析的文本帧。
  *
@@ -34,7 +40,16 @@
  *
  * @return 实际写入长度，不包含字符串结束符；小于 0 表示参数错误。
  */
-int protocol_text_format_adc(const adc_sample_t *aSample, char *aBuffer, uint16_t aSize);
+int protocol_text_format_adc(const adc_sample_t *aSample,
+							 uint32_t aSeq,
+							 char *aBuffer,
+							 uint16_t aSize);
+
+
+int protocol_text_format_adc_binary(const adc_sample_t *aSample,
+									uint32_t aSeq,
+									uint8_t *aBuffer,
+									uint16_t aSize);
 
 
 #endif /* PROTOCOL_TEXT_H */

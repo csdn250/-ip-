@@ -99,7 +99,7 @@ uint32_t adc_get_result(uint32_t ch)
 
     adc_ch_conf.Channel = ch;                                   /* 通道 */
     adc_ch_conf.Rank = ADC_REGULAR_RANK_1;                      /* 序列 */
-    adc_ch_conf.SamplingTime = ADC_SAMPLETIME_810CYCLES_5;      /* 采样时间，设置最大采样周期: 810.5个ADC周期 */
+    adc_ch_conf.SamplingTime = ADC_SAMPLETIME_1CYCLE_5   ;      /* 采样时间，设置最大采样周期: 810.5个ADC周期 */
     adc_ch_conf.SingleDiff = ADC_SINGLE_ENDED;                  /* 单边采集 */
     adc_ch_conf.OffsetNumber = ADC_OFFSET_NONE;                 /* 不使用偏移量的通道 */
     adc_ch_conf.Offset = 0;                                     /* 偏移量为0 */
@@ -207,7 +207,7 @@ void adc_dma_init(uint32_t par, uint32_t mar)
     /* 配置ADC通道 */
     adc_ch_conf.Channel = ADC_ADCX_CHY;                                         /* 配置使用的ADC通道 */
     adc_ch_conf.Rank = ADC_REGULAR_RANK_1;                                      /* 采样序列里的第1个 */
-    adc_ch_conf.SamplingTime = ADC_SAMPLETIME_810CYCLES_5;                      /* 采样周期为810.5个时钟周期 */
+    adc_ch_conf.SamplingTime = ADC_SAMPLETIME_1CYCLE_5   ;                      /* 采样周期为810.5个时钟周期 */
     adc_ch_conf.SingleDiff = ADC_SINGLE_ENDED;                                  /* 单端输入 */
     adc_ch_conf.OffsetNumber = ADC_OFFSET_NONE;                                 /* 无偏移 */
     adc_ch_conf.Offset = 0;                                                     /* 无偏移的情况下，此参数忽略 */
@@ -307,7 +307,7 @@ void adc_nch_dma_init(uint32_t par, uint32_t mar)
     /* 配置ADC通道: 避开以太网使用的PA1/PA2, 采集PA0/PA3/PA4/PA5 */
     adc_ch_conf.Channel = ADC_CHANNEL_16;                       /* PA0 */
     adc_ch_conf.Rank = ADC_REGULAR_RANK_1;                      /* 采样序列里的第1个 */
-    adc_ch_conf.SamplingTime = ADC_SAMPLETIME_810CYCLES_5;      /* 采样周期为810.5个时钟周期 */
+    adc_ch_conf.SamplingTime = ADC_SAMPLETIME_1CYCLE_5   ;      /* 采样周期为810.5个时钟周期 */
     adc_ch_conf.SingleDiff = ADC_SINGLE_ENDED;                  /* 单端输入 */
     adc_ch_conf.OffsetNumber = ADC_OFFSET_NONE;                 /* 无偏移 */
     adc_ch_conf.Offset = 0;                                     /* 无偏移的情况下，此参数忽略 */

@@ -15,7 +15,7 @@
 ..\..\output\ethernetif.o: ..\..\Middlewares\lwip\src\include\lwip/pbuf.h
 ..\..\output\ethernetif.o: ..\..\Middlewares\lwip\src\include\lwip/err.h
 ..\..\output\ethernetif.o: ..\..\Middlewares\lwip\arch\lwip_comm.h
-..\..\output\ethernetif.o: ..\..\Drivers\./BSP/ETHERNET/ethernet.h
+..\..\output\ethernetif.o: ..\..\Drivers\BSP/ETHERNET/ethernet.h
 ..\..\output\ethernetif.o: ..\..\Drivers\./SYSTEM/sys/sys.h
 ..\..\output\ethernetif.o: ..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include\stm32h7xx.h
 ..\..\output\ethernetif.o: ..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include\stm32h743xx.h

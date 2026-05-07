@@ -1,4 +1,5 @@
 ..\..\output\main.o: ..\..\User\main.c
+..\..\output\main.o: F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\Bin\..\include\stdio.h
 ..\..\output\main.o: ..\..\Drivers\SYSTEM\sys\sys.h
 ..\..\output\main.o: ..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include\stm32h7xx.h
 ..\..\output\main.o: ..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include\stm32h743xx.h
@@ -107,7 +108,6 @@
 ..\..\output\main.o: ..\..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_hcd.h
 ..\..\output\main.o: ..\..\Drivers\CMSIS\Include\core_cm7.h
 ..\..\output\main.o: ..\..\Drivers\SYSTEM\usart\usart.h
-..\..\output\main.o: F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\Bin\..\include\stdio.h
 ..\..\output\main.o: ..\..\Drivers\SYSTEM\delay\delay.h
 ..\..\output\main.o: ..\..\Drivers\BSP\LED\led.h
 ..\..\output\main.o: ..\..\Drivers\BSP\LCD\lcd.h
@@ -117,15 +117,15 @@
 ..\..\output\main.o: ..\..\Drivers\BSP\MPU\mpu.h
 ..\..\output\main.o: ..\..\Drivers\BSP\LCD\ltdc.h
 ..\..\output\main.o: ..\..\Drivers\BSP\SDRAM\sdram.h
-..\..\output\main.o: ..\..\Middlewares\./MALLOC/malloc.h
+..\..\output\main.o: ..\..\Middlewares\MALLOC/malloc.h
 ..\..\output\main.o: ..\..\Drivers\BSP\PCF8574\pcf8574.h
 ..\..\output\main.o: ..\..\Drivers\./BSP/IIC/myiic.h
+..\..\output\main.o: ..\..\Middlewares\lwip\arch\lwipopts.h
 ..\..\output\main.o: ..\..\Middlewares\lwip\arch\lwip_comm.h
-..\..\output\main.o: ..\..\Drivers\./BSP/ETHERNET/ethernet.h
+..\..\output\main.o: ..\..\Drivers\BSP/ETHERNET/ethernet.h
 ..\..\output\main.o: ..\..\Middlewares\lwip\src\include\netif/etharp.h
 ..\..\output\main.o: ..\..\Middlewares\lwip\src\include\lwip/etharp.h
 ..\..\output\main.o: ..\..\Middlewares\lwip\src\include\lwip/opt.h
-..\..\output\main.o: ..\..\Middlewares\lwip\arch\lwipopts.h
 ..\..\output\main.o: ..\..\Middlewares\lwip\src\include\lwip/debug.h
 ..\..\output\main.o: ..\..\Middlewares\lwip\src\include\lwip/arch.h
 ..\..\output\main.o: ..\..\Middlewares\lwip\arch/cc.h
@@ -155,10 +155,6 @@
 ..\..\output\main.o: ..\..\Middlewares\lwip\src\include\lwip/prot/etharp.h
 ..\..\output\main.o: ..\..\Middlewares\lwip\src\include\netif/ethernet.h
 ..\..\output\main.o: ..\..\Middlewares\lwip\lwip_app\lwip_demo.h
-..\..\output\main.o: ..\..\Core\App\device_service.h
-..\..\output\main.o: ..\..\Core\Bridge\comm_bridge.h
-..\..\output\main.o: ..\..\Core\Bridge\sensor_bridge.h
-..\..\output\main.o: ..\..\Core\Config\net_config.h
 ..\..\output\main.o: ..\..\Core\Impl\comm_lwip_tcp.h
 ..\..\output\main.o: ..\..\Middlewares\lwip\src\include\lwip/tcp.h
 ..\..\output\main.o: ..\..\Middlewares\lwip\src\include\lwip/tcpbase.h
@@ -167,4 +163,9 @@
 ..\..\output\main.o: ..\..\Middlewares\lwip\src\include\lwip/prot/ip.h
 ..\..\output\main.o: ..\..\Middlewares\lwip\src\include\lwip/icmp.h
 ..\..\output\main.o: ..\..\Middlewares\lwip\src\include\lwip/prot/icmp.h
+..\..\output\main.o: ..\..\Core\Bridge\comm_bridge.h
+..\..\output\main.o: ..\..\Core\Impl\comm_lwip_udp_discover.h
+..\..\output\main.o: ..\..\Core\App\device_service.h
+..\..\output\main.o: ..\..\Core\Bridge\sensor_bridge.h
+..\..\output\main.o: ..\..\Core\Config\net_config.h
 ..\..\output\main.o: ..\..\Core\Impl\sensor_adc_dma.h

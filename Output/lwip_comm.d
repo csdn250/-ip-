@@ -1,11 +1,11 @@
 ..\..\output\lwip_comm.o: ..\..\Middlewares\lwip\arch\lwip_comm.c
 ..\..\output\lwip_comm.o: ..\..\Middlewares\lwip\arch\lwip_comm.h
-..\..\output\lwip_comm.o: ..\..\Drivers\./BSP/ETHERNET/ethernet.h
+..\..\output\lwip_comm.o: F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\Bin\..\include\stdint.h
+..\..\output\lwip_comm.o: ..\..\Drivers\BSP/ETHERNET/ethernet.h
 ..\..\output\lwip_comm.o: ..\..\Drivers\./SYSTEM/sys/sys.h
 ..\..\output\lwip_comm.o: ..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include\stm32h7xx.h
 ..\..\output\lwip_comm.o: ..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include\stm32h743xx.h
 ..\..\output\lwip_comm.o: ..\..\Drivers\CMSIS\Include\core_cm7.h
-..\..\output\lwip_comm.o: F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\Bin\..\include\stdint.h
 ..\..\output\lwip_comm.o: ..\..\Drivers\CMSIS\Include\cmsis_version.h
 ..\..\output\lwip_comm.o: ..\..\Drivers\CMSIS\Include\cmsis_compiler.h
 ..\..\output\lwip_comm.o: ..\..\Drivers\CMSIS\Include\cmsis_armcc.h

@@ -1,17 +1,15 @@
 ..\..\output\sensor_adc_dma.o: ..\..\Core\Impl\sensor_adc_dma.c
-..\..\output\sensor_adc_dma.o: ..\..\Core\Impl\sensor_adc_dma.h
-..\..\output\sensor_adc_dma.o: ..\..\Core\Bridge\sensor_bridge.h
-..\..\output\sensor_adc_dma.o: F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\Bin\..\include\stdint.h
-..\..\output\sensor_adc_dma.o: ..\..\Drivers\BSP\ADC\adc.h
-..\..\output\sensor_adc_dma.o: ..\..\Drivers\./SYSTEM/sys/sys.h
-..\..\output\sensor_adc_dma.o: ..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include\stm32h7xx.h
 ..\..\output\sensor_adc_dma.o: ..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include\stm32h743xx.h
 ..\..\output\sensor_adc_dma.o: ..\..\Drivers\CMSIS\Include\core_cm7.h
+..\..\output\sensor_adc_dma.o: F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\Bin\..\include\stdint.h
 ..\..\output\sensor_adc_dma.o: ..\..\Drivers\CMSIS\Include\cmsis_version.h
 ..\..\output\sensor_adc_dma.o: ..\..\Drivers\CMSIS\Include\cmsis_compiler.h
 ..\..\output\sensor_adc_dma.o: ..\..\Drivers\CMSIS\Include\cmsis_armcc.h
 ..\..\output\sensor_adc_dma.o: ..\..\Drivers\CMSIS\Include\mpu_armv7.h
 ..\..\output\sensor_adc_dma.o: ..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include\system_stm32h7xx.h
+..\..\output\sensor_adc_dma.o: ..\..\Drivers\BSP\ADC\adc.h
+..\..\output\sensor_adc_dma.o: ..\..\Drivers\./SYSTEM/sys/sys.h
+..\..\output\sensor_adc_dma.o: ..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include\stm32h7xx.h
 ..\..\output\sensor_adc_dma.o: ..\..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal.h
 ..\..\output\sensor_adc_dma.o: ..\..\User\stm32h7xx_hal_conf.h
 ..\..\output\sensor_adc_dma.o: ..\..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_rcc.h
@@ -109,3 +107,5 @@
 ..\..\output\sensor_adc_dma.o: ..\..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd_ex.h
 ..\..\output\sensor_adc_dma.o: ..\..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_hcd.h
 ..\..\output\sensor_adc_dma.o: ..\..\Drivers\CMSIS\Include\core_cm7.h
+..\..\output\sensor_adc_dma.o: ..\..\Core\Impl\sensor_adc_dma.h
+..\..\output\sensor_adc_dma.o: ..\..\Core\Bridge\sensor_bridge.h

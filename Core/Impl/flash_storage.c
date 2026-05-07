@@ -4,6 +4,9 @@
  * @author      Codex
  * @date        2026-05-07
  * @brief       片内 Flash 小块存储实现。
+ *
+ * 本文件为网络配置持久化提供最小 Flash 读、擦、写接口。上层 `net_config.c`
+ * 不直接关心 STM32H7 的 Bank、Sector 和 Flash word 编程细节。
  ****************************************************************************************************
  */
 
@@ -22,6 +25,15 @@
 #define FLASH_STORAGE_BYTES    (FLASH_STORAGE_WORDS * sizeof(uint32_t))
 
 
+/**
+ * @brief 从固定 Flash 配置区读取数据。
+ *
+ * @param aData 输出缓冲区，由调用者提供。
+ * @param aLen  读取长度，单位字节。
+ *
+ * 本函数只是内存拷贝，不会校验数据有效性。配置有效性由 `net_config_load()`
+ * 通过 magic、version、crc 统一判断。
+ */
 void flash_storage_read(void *aData, uint32_t aLen)
 {
 	if ((aData == 0) || (aLen == 0U))
@@ -33,6 +45,15 @@ void flash_storage_read(void *aData, uint32_t aLen)
 }
 
 
+/**
+ * @brief 擦除固定 Flash 配置区。
+ *
+ * @retval 0  擦除成功。
+ * @retval -1 HAL Flash 擦除失败。
+ *
+ * NOTE：当前使用 Bank2 Sector7 作为配置区。修改地址或扇区前，需要确认
+ * 链接脚本、程序存储区和 Flash 擦除粒度不会冲突。
+ */
 int flash_storage_erase(void)
 {
 	FLASH_EraseInitTypeDef erase;
@@ -55,6 +76,18 @@ int flash_storage_erase(void)
 }
 
 
+/**
+ * @brief 写入固定 Flash 配置区。
+ *
+ * @param aData 输入数据首地址。
+ * @param aLen  输入数据长度，不能超过 FLASH_STORAGE_BYTES。
+ *
+ * @retval 0  写入成功。
+ * @retval -1 参数非法、擦除失败或 Flash 编程失败。
+ *
+ * STM32H7 Flash 编程按 Flash word 写入。这里先把用户数据拷贝到固定长度
+ * `flash_word[]`，未使用区域填充为 0xFF，再执行一次 Flash word 编程。
+ */
 int flash_storage_write(const void *aData, uint32_t aLen)
 {
 	uint32_t flash_word[FLASH_STORAGE_WORDS];
