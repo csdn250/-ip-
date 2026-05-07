@@ -37,6 +37,16 @@ typedef struct
 	int (*send)(const uint8_t *aData, uint16_t aLen);
 
 	/**
+	 * @brief 查询当前通信层是否还有空间接收一帧待发送数据。
+	 *
+	 * @param aLen 计划提交的 payload 长度，单位字节。
+	 *
+	 * @retval 1 可以提交。
+	 * @retval 0 暂时不能提交，业务层应等待后续轮询。
+	 */
+	int (*can_send)(uint16_t aLen);
+
+	/**
 	 * @brief 查询当前通信链路是否已经具备发送业务数据的条件。
 	 *
 	 * TCP 实现下，该接口表示是否已经有上位机客户端连接到单片机。

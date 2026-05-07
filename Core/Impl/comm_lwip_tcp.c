@@ -10,12 +10,30 @@
  ****************************************************************************************************
  */
 
+#include <string.h>
+
 #include "comm_lwip_tcp.h"
 #include "device_service.h"
 
 
+#define COMM_LWIP_TCP_TX_SLOT_NUM   8U
+#define COMM_LWIP_TCP_TX_SLOT_SIZE  2048U
+
+
+typedef struct
+{
+	uint8_t data[COMM_LWIP_TCP_TX_SLOT_SIZE];
+	uint16_t len;
+	uint16_t offset;
+} comm_lwip_tcp_tx_slot_t;
+
+
 /* 当前 TCP 客户端连接，由 lwIP RAW TCP accept/close 回调维护。 */
 static struct tcp_pcb *s_client_pcb;
+static comm_lwip_tcp_tx_slot_t s_tx_slots[COMM_LWIP_TCP_TX_SLOT_NUM];
+static uint8_t s_tx_read_index;
+static uint8_t s_tx_write_index;
+static uint8_t s_tx_count;
 
 
 /**

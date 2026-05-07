@@ -44,5 +44,19 @@ void comm_lwip_tcp_set_client(struct tcp_pcb *aPcb);
  */
 void comm_lwip_tcp_on_receive(const uint8_t *aData, uint16_t aLen);
 
+/**
+ * @brief TCP 已发送数据被上位机 ACK 后的桥接入口。
+ *
+ * lwIP 的 tcp_sent 回调应调用本函数，用于继续从内部发送队列提交后续数据。
+ */
+void comm_lwip_tcp_on_sent(void);
+
+/**
+ * @brief TCP 轮询时的桥接入口。
+ *
+ * 在没有 ACK 回调但发送窗口已经恢复的情况下，poll 调用可继续推动发送队列。
+ */
+void comm_lwip_tcp_poll(void);
+
 
 #endif /* COMM_LWIP_TCP_H */
