@@ -1,346 +1,351 @@
-#include "device_service.h"
-#include "lwip_comm.h"
-#include "net_config.h"
-#include "protocol_text.h"
-#include "stm32h7xx_hal.h"
+/**
+ ****************************************************************************************************
+ * @file        device_service.c
+ * @author      Codex
+ * @date        2026-05-07
+ * @brief       设备业务服务层实现。
+ ****************************************************************************************************
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-/* ADC 主动上传周期。该周期属于业务策略，不属于 ADC 驱动或 TCP 驱动。 */
-#define DEVICE_SERVICE_ADC_SEND_INTERVAL 2000U
-#define DEVICE_SERVICE_RX_LINE_SIZE      192U
+#include "stm32h7xx_hal.h"
 
-/* 业务层持有的桥接接口。使用指针保存，便于后续替换通信或采集实现。 */
+#include "device_service.h"
+#include "lwip_comm.h"
+#include "net_config.h"
+#include "protocol_text.h"
+
+
+/* ADC 主动上报周期。该周期属于业务策略，不属于 ADC 驱动或 TCP 驱动。 */
+#define DEVICE_SERVICE_ADC_SEND_INTERVAL  2000U
+#define DEVICE_SERVICE_RX_LINE_SIZE       192U
+
+
 static const comm_bridge_t *s_comm;
 static const sensor_bridge_t *s_sensor;
 static uint32_t s_adc_send_tick;
 static char s_rx_line[DEVICE_SERVICE_RX_LINE_SIZE];
 static uint16_t s_rx_line_len;
 
-static void device_service_send_text(const char *text)
+
+static void device_service_send_text(const char *aText)
 {
-    if ((s_comm != 0) && (s_comm->send != 0) && (text != 0))
-    {
-        s_comm->send((const uint8_t *)text, (uint16_t)strlen(text));
-    }
+	if ((s_comm != 0) && (s_comm->send != 0) && (aText != 0))
+	{
+		s_comm->send((const uint8_t *)aText, (uint16_t)strlen(aText));
+	}
 }
+
 
 static void device_service_reboot_after_reply(void)
 {
-    /* 给 tcp_write()/tcp_output() 留出一点发送时间，避免上位机还没收到 OK 就复位。 */
-    HAL_Delay(300);
-    NVIC_SystemReset();
+	/* 给 tcp_write()/tcp_output() 留出发送时间，避免上位机还没收到 OK 就复位。 */
+	HAL_Delay(300U);
+	NVIC_SystemReset();
 }
 
-static int device_service_parse_ipv4(const char *text, uint8_t ip[4])
+
+static int device_service_parse_ipv4(const char *aText, uint8_t aIp[4])
 {
-    char *end;
-    unsigned long value;
-    uint8_t i;
+	char *pEnd;
+	unsigned long value;
+	uint8_t i;
 
-    if ((text == 0) || (ip == 0))
-    {
-        return -1;
-    }
+	if ((aText == 0) || (aIp == 0))
+	{
+		return -1;
+	}
 
-    for (i = 0; i < 4U; i++)
-    {
-        value = strtoul(text, &end, 10);
-        if ((end == text) || (value > 255UL))
-        {
-            return -1;
-        }
+	for (i = 0U; i < 4U; ++i)
+	{
+		value = strtoul(aText, &pEnd, 10);
 
-        ip[i] = (uint8_t)value;
+		if ((pEnd == aText) || (value > 255UL))
+		{
+			return -1;
+		}
 
-        if (i < 3U)
-        {
-            if (*end != '.')
-            {
-                return -1;
-            }
-            text = end + 1;
-        }
-        else
-        {
-            if ((*end != '\0') && (*end != ',') && (*end != '\r') && (*end != '\n'))
-            {
-                return -1;
-            }
-        }
-    }
+		aIp[i] = (uint8_t)value;
 
-    return 0;
+		if (i < 3U)
+		{
+			if (*pEnd != '.')
+			{
+				return -1;
+			}
+
+			aText = pEnd + 1;
+		} else {
+			if ((*pEnd != '\0') && (*pEnd != ',') && (*pEnd != '\r') && (*pEnd != '\n'))
+			{
+				return -1;
+			}
+		}
+	}
+
+	return 0;
 }
 
-static int device_service_parse_field_ip(const char *line, const char *key, uint8_t ip[4])
+
+static int device_service_parse_field_ip(const char *aLine, const char *aKey, uint8_t aIp[4])
 {
-    const char *field = strstr(line, key);
+	const char *pField = strstr(aLine, aKey);
 
-    if (field == 0)
-    {
-        return -1;
-    }
+	if (pField == 0)
+	{
+		return -1;
+	}
 
-    field += strlen(key);
-    return device_service_parse_ipv4(field, ip);
+	pField += strlen(aKey);
+	return device_service_parse_ipv4(pField, aIp);
 }
 
-static void device_service_format_current_net(char *out, uint16_t out_size)
+
+static void device_service_format_current_net(char *aBuffer, uint16_t aSize)
 {
-    snprintf(out,
-             out_size,
-             "NET,IP=%d.%d.%d.%d,MASK=%d.%d.%d.%d,GW=%d.%d.%d.%d\r\n",
-             g_lwipdev.ip[0], g_lwipdev.ip[1], g_lwipdev.ip[2], g_lwipdev.ip[3],
-             g_lwipdev.netmask[0], g_lwipdev.netmask[1], g_lwipdev.netmask[2], g_lwipdev.netmask[3],
-             g_lwipdev.gateway[0], g_lwipdev.gateway[1], g_lwipdev.gateway[2], g_lwipdev.gateway[3]);
+	snprintf(aBuffer,
+			 aSize,
+			 "NET,IP=%d.%d.%d.%d,MASK=%d.%d.%d.%d,GW=%d.%d.%d.%d\r\n",
+			 g_lwipdev.ip[0],
+			 g_lwipdev.ip[1],
+			 g_lwipdev.ip[2],
+			 g_lwipdev.ip[3],
+			 g_lwipdev.netmask[0],
+			 g_lwipdev.netmask[1],
+			 g_lwipdev.netmask[2],
+			 g_lwipdev.netmask[3],
+			 g_lwipdev.gateway[0],
+			 g_lwipdev.gateway[1],
+			 g_lwipdev.gateway[2],
+			 g_lwipdev.gateway[3]);
 }
 
-static void device_service_apply_config_to_ram(const net_config_t *config)
+
+static void device_service_apply_config_to_ram(const net_config_t *aConfig)
 {
-    if (config == 0)
-    {
-        return;
-    }
+	if (aConfig == 0)
+	{
+		return;
+	}
 
-    memcpy(g_lwipdev.ip, config->ip, sizeof(g_lwipdev.ip));
-    memcpy(g_lwipdev.netmask, config->netmask, sizeof(g_lwipdev.netmask));
-    memcpy(g_lwipdev.gateway, config->gateway, sizeof(g_lwipdev.gateway));
+	memcpy(g_lwipdev.ip, aConfig->ip, sizeof(g_lwipdev.ip));
+	memcpy(g_lwipdev.netmask, aConfig->netmask, sizeof(g_lwipdev.netmask));
+	memcpy(g_lwipdev.gateway, aConfig->gateway, sizeof(g_lwipdev.gateway));
 }
+
 
 static void device_service_handle_get_net(void)
 {
-    char reply[128];
+	char reply[128];
 
-    device_service_format_current_net(reply, sizeof(reply));
-    device_service_send_text(reply);
+	device_service_format_current_net(reply, sizeof(reply));
+	device_service_send_text(reply);
 }
 
-static void device_service_handle_set_net(const char *line)
+
+static void device_service_handle_set_net(const char *aLine)
 {
-    net_config_t config;
+	net_config_t config;
 
-    if ((device_service_parse_field_ip(line, "IP=", config.ip) != 0) ||
-        (device_service_parse_field_ip(line, "MASK=", config.netmask) != 0) ||
-        (device_service_parse_field_ip(line, "GW=", config.gateway) != 0))
-    {
-        device_service_send_text("ERR,BAD_NET_FORMAT\r\n");
-        return;
-    }
+	if ((device_service_parse_field_ip(aLine, "IP=", config.ip) != 0) ||
+		(device_service_parse_field_ip(aLine, "MASK=", config.netmask) != 0) ||
+		(device_service_parse_field_ip(aLine, "GW=", config.gateway) != 0))
+	{
+		device_service_send_text("ERR,BAD_NET_FORMAT\r\n");
+		return;
+	}
 
-    if (!net_config_validate(&config))
-    {
-        device_service_send_text("ERR,BAD_NET_VALUE\r\n");
-        return;
-    }
+	if (!net_config_validate(&config))
+	{
+		device_service_send_text("ERR,BAD_NET_VALUE\r\n");
+		return;
+	}
 
-    if (net_config_save(&config) != 0)
-    {
-        device_service_send_text("ERR,FLASH_WRITE_FAILED\r\n");
-        return;
-    }
+	if (net_config_save(&config) != 0)
+	{
+		device_service_send_text("ERR,FLASH_WRITE_FAILED\r\n");
+		return;
+	}
 
-    device_service_apply_config_to_ram(&config);
-    device_service_send_text("OK,NET_SAVED,REBOOTING\r\n");
-    device_service_reboot_after_reply();
+	device_service_apply_config_to_ram(&config);
+	device_service_send_text("OK,NET_SAVED,REBOOTING\r\n");
+	device_service_reboot_after_reply();
 }
+
 
 static void device_service_handle_reset_net(void)
 {
-    net_config_t config;
+	net_config_t config;
 
-    if (net_config_clear() != 0)
-    {
-        device_service_send_text("ERR,FLASH_ERASE_FAILED\r\n");
-        return;
-    }
+	if (net_config_clear() != 0)
+	{
+		device_service_send_text("ERR,FLASH_ERASE_FAILED\r\n");
+		return;
+	}
 
-    net_config_get_default(&config);
-    device_service_apply_config_to_ram(&config);
-    device_service_send_text("OK,NET_RESET,REBOOTING\r\n");
-    device_service_reboot_after_reply();
+	net_config_get_default(&config);
+	device_service_apply_config_to_ram(&config);
+	device_service_send_text("OK,NET_RESET,REBOOTING\r\n");
+	device_service_reboot_after_reply();
 }
 
-static void device_service_handle_line(char *line)
+
+static void device_service_handle_line(char *aLine)
 {
-    char *end = line + strlen(line);
+	char *pEnd = aLine + strlen(aLine);
 
-    while ((end > line) && ((end[-1] == '\r') || (end[-1] == '\n') || (end[-1] == ' ')))
-    {
-        end--;
-        *end = '\0';
-    }
+	while ((pEnd > aLine) && ((pEnd[-1] == '\r') || (pEnd[-1] == '\n') || (pEnd[-1] == ' ')))
+	{
+		--pEnd;
+		*pEnd = '\0';
+	}
 
-    if (line[0] == '\0')
-    {
-        return;
-    }
+	if (aLine[0] == '\0')
+	{
+		return;
+	}
 
-    if ((strcmp(line, "GET_NET") == 0) || (strcmp(line, "GET_NET?") == 0))
-    {
-        device_service_handle_get_net();
-    }
-    else if (strncmp(line, "SET_NET,", 8) == 0)
-    {
-        device_service_handle_set_net(line);
-    }
-    else if ((strcmp(line, "RESET_NET") == 0) || (strcmp(line, "FACTORY_NET") == 0))
-    {
-        device_service_handle_reset_net();
-    }
-    else if (strcmp(line, "SAVE_NET") == 0)
-    {
-        device_service_send_text("OK,SET_NET_AUTO_SAVES\r\n");
-    }
-    else if (strcmp(line, "REBOOT") == 0)
-    {
-        device_service_send_text("OK,REBOOTING\r\n");
-        HAL_Delay(100);
-        NVIC_SystemReset();
-    }
-    else if (strcmp(line, "PING") == 0)
-    {
-        device_service_send_text("PONG\r\n");
-    }
-    else if (strncmp(line, "ECHO,", 5) == 0)
-    {
-        device_service_send_text(line + 5);
-        device_service_send_text("\r\n");
-    }
-    else
-    {
-        device_service_send_text("ERR,UNKNOWN_CMD\r\n");
-    }
+	if ((strcmp(aLine, "GET_NET") == 0) || (strcmp(aLine, "GET_NET?") == 0))
+	{
+		device_service_handle_get_net();
+	} else if (strncmp(aLine, "SET_NET,", 8U) == 0) {
+		device_service_handle_set_net(aLine);
+	} else if ((strcmp(aLine, "RESET_NET") == 0) || (strcmp(aLine, "FACTORY_NET") == 0)) {
+		device_service_handle_reset_net();
+	} else if (strcmp(aLine, "SAVE_NET") == 0) {
+		device_service_send_text("OK,SET_NET_AUTO_SAVES\r\n");
+	} else if (strcmp(aLine, "REBOOT") == 0) {
+		device_service_send_text("OK,REBOOTING\r\n");
+		device_service_reboot_after_reply();
+	} else if (strcmp(aLine, "PING") == 0) {
+		device_service_send_text("PONG\r\n");
+	} else if (strncmp(aLine, "ECHO,", 5U) == 0) {
+		device_service_send_text(aLine + 5);
+		device_service_send_text("\r\n");
+	} else {
+		device_service_send_text("ERR,UNKNOWN_CMD\r\n");
+	}
 }
 
-void device_service_init(const comm_bridge_t *comm, const sensor_bridge_t *sensor)
+
+void device_service_init(const comm_bridge_t *aComm, const sensor_bridge_t *aSensor)
 {
-    /* 只保存接口，不保存具体实现细节。
-     * 这样业务层不需要知道底层是 lwIP RAW TCP 还是其他通信方式。
-     */
-    s_comm = comm;
-    s_sensor = sensor;
-    s_adc_send_tick = HAL_GetTick();
+	/* 只保存接口，不保存具体实现细节，便于后续替换通信或采集实现。 */
+	s_comm = aComm;
+	s_sensor = aSensor;
+	s_adc_send_tick = HAL_GetTick();
+	s_rx_line_len = 0U;
 
-    if ((s_sensor != 0) && (s_sensor->init != 0))
-    {
-        s_sensor->init();
-    }
+	if ((s_sensor != 0) && (s_sensor->init != 0))
+	{
+		s_sensor->init();
+	}
 }
+
 
 void device_service_poll(void)
 {
-    adc_sample_t sample;
-    char frame[192];
-    int len;
+	adc_sample_t sample;
+	char frame[192];
+	int len;
 
-    /* 防御式检查：
-     * 业务层允许桥接实现为空，避免初始化顺序异常时直接访问空指针。
-     */
-    if ((s_comm == 0) || (s_sensor == 0) ||
-        (s_comm->send == 0) || (s_comm->is_connected == 0) ||
-        (s_sensor->read == 0))
-    {
-        return;
-    }
+	/* 防御式检查：底层桥接未绑定时直接返回，避免访问空指针。 */
+	if ((s_comm == 0) || (s_sensor == 0) ||
+		(s_comm->send == 0) || (s_comm->is_connected == 0) ||
+		(s_sensor->read == 0))
+	{
+		return;
+	}
 
-    if (!s_comm->is_connected())
-    {
-        /* 没有上位机连接时不主动读取并发送 ADC，避免无意义占用发送缓冲。 */
-        return;
-    }
+	if (!s_comm->is_connected())
+	{
+		return;
+	}
 
-    if ((HAL_GetTick() - s_adc_send_tick) < DEVICE_SERVICE_ADC_SEND_INTERVAL)
-    {
-        return;
-    }
+	if ((HAL_GetTick() - s_adc_send_tick) < DEVICE_SERVICE_ADC_SEND_INTERVAL)
+	{
+		return;
+	}
 
-    s_adc_send_tick = HAL_GetTick();
+	s_adc_send_tick = HAL_GetTick();
 
-    /* sensor->read() 只在 DMA 已经完成一轮采集时返回成功。
-     * 如果当前还没有新数据，本轮业务调度直接退出。
-     */
-    if (s_sensor->read(&sample) != 0)
-    {
-        return;
-    }
+	/* 仅当 DMA 已经完成一批采集时才会读取成功。 */
+	if (s_sensor->read(&sample) != 0)
+	{
+		return;
+	}
 
-    /* 业务层不直接调用 lwIP。
-     * 这里先生成上位机协议帧，再通过 comm_bridge_t 发送。
-     */
-    len = protocol_text_format_adc(&sample, frame, sizeof(frame));
-    if ((len > 0) && (len < (int)sizeof(frame)))
-    {
-        s_comm->send((const uint8_t *)frame, (uint16_t)len);
-    }
+	len = protocol_text_format_adc(&sample, frame, sizeof(frame));
+
+	if ((len > 0) && (len < (int)sizeof(frame)))
+	{
+		s_comm->send((const uint8_t *)frame, (uint16_t)len);
+	}
 }
 
-void device_service_on_rx(const uint8_t *data, uint16_t len)
+
+void device_service_on_rx(const uint8_t *aData, uint16_t aLen)
 {
-    uint16_t i;
-    uint8_t has_line_delimiter = 0U;
-    uint8_t maybe_command = 0U;
+	uint16_t i;
+	uint8_t has_line_delimiter = 0U;
+	uint8_t maybe_command = 0U;
 
-    /* data 是 TCP payload，不是原始以太网帧。
-     * 以太网头、IP 头、TCP 头已经由 lwIP 和协议栈处理完成。
-     */
-    if ((s_comm == 0) || (s_comm->send == 0) || (data == 0) || (len == 0))
-    {
-        return;
-    }
+	/* aData 是 TCP payload，以太网头、IP 头、TCP 头已经由 lwIP 处理完成。 */
+	if ((s_comm == 0) || (s_comm->send == 0) || (aData == 0) || (aLen == 0U))
+	{
+		return;
+	}
 
-    for (i = 0; i < len; i++)
-    {
-        if (data[i] == '\n')
-        {
-            has_line_delimiter = 1U;
-            break;
-        }
-    }
+	for (i = 0U; i < aLen; ++i)
+	{
+		if (aData[i] == '\n')
+		{
+			has_line_delimiter = 1U;
+			break;
+		}
+	}
 
-    if ((len >= 3U) &&
-        ((memcmp(data, "GET", 3U) == 0) ||
-         (memcmp(data, "SET", 3U) == 0) ||
-         (memcmp(data, "RES", 3U) == 0) ||
-         (memcmp(data, "FAC", 3U) == 0) ||
-         (memcmp(data, "SAV", 3U) == 0) ||
-         (memcmp(data, "REB", 3U) == 0) ||
-         (memcmp(data, "PIN", 3U) == 0) ||
-         (memcmp(data, "ECH", 3U) == 0)))
-    {
-        maybe_command = 1U;
-    }
+	if ((aLen >= 3U) &&
+		((memcmp(aData, "GET", 3U) == 0) ||
+		 (memcmp(aData, "SET", 3U) == 0) ||
+		 (memcmp(aData, "RES", 3U) == 0) ||
+		 (memcmp(aData, "FAC", 3U) == 0) ||
+		 (memcmp(aData, "SAV", 3U) == 0) ||
+		 (memcmp(aData, "REB", 3U) == 0) ||
+		 (memcmp(aData, "PIN", 3U) == 0) ||
+		 (memcmp(aData, "ECH", 3U) == 0)))
+	{
+		maybe_command = 1U;
+	}
 
-    /* 兼容旧的链路测试方式：
-     * 网络调试助手直接发送 `test` 这类无 \r\n 的普通文本时，立即原样回显。
-     * 以 GET/SET/RESET/REBOOT/PING/ECHO 开头的内容仍按命令缓存，等待 \r\n 结束。
-     */
-    if ((has_line_delimiter == 0U) && (maybe_command == 0U) && (s_rx_line_len == 0U))
-    {
-        s_comm->send(data, len);
-        return;
-    }
+	/* 兼容网络调试助手直接发送 test 这类无换行文本的回显测试。 */
+	if ((has_line_delimiter == 0U) && (maybe_command == 0U) && (s_rx_line_len == 0U))
+	{
+		s_comm->send(aData, aLen);
+		return;
+	}
 
-    /* TCP 是字节流，不保证上位机一次 send 对应本函数一次完整命令。
-     * 这里按 \n 聚合成应用层命令行，再交给命令处理函数。
-     */
-    for (i = 0; i < len; i++)
-    {
-        if (s_rx_line_len >= (DEVICE_SERVICE_RX_LINE_SIZE - 1U))
-        {
-            s_rx_line_len = 0;
-            device_service_send_text("ERR,CMD_TOO_LONG\r\n");
-            continue;
-        }
+	/* TCP 是字节流，这里按 \n 聚合成应用层命令行。 */
+	for (i = 0U; i < aLen; ++i)
+	{
+		if (s_rx_line_len >= (DEVICE_SERVICE_RX_LINE_SIZE - 1U))
+		{
+			s_rx_line_len = 0U;
+			device_service_send_text("ERR,CMD_TOO_LONG\r\n");
+			continue;
+		}
 
-        s_rx_line[s_rx_line_len++] = (char)data[i];
+		s_rx_line[s_rx_line_len] = (char)aData[i];
+		++s_rx_line_len;
 
-        if (data[i] == '\n')
-        {
-            s_rx_line[s_rx_line_len] = '\0';
-            device_service_handle_line(s_rx_line);
-            s_rx_line_len = 0;
-        }
-    }
+		if (aData[i] == '\n')
+		{
+			s_rx_line[s_rx_line_len] = '\0';
+			device_service_handle_line(s_rx_line);
+			s_rx_line_len = 0U;
+		}
+	}
 }

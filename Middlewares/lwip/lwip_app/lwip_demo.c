@@ -17,23 +17,23 @@
  *
  ****************************************************************************************************
  */
- 
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
+
+#include "lwip/pbuf.h"
+#include "lwip/tcp.h"
+#include "lwip/udp.h"
+
 #include "lcd.h"
-#include "./MALLOC/malloc.h"
+#include "MALLOC/malloc.h"
 #include "key.h"
 #include "delay.h"
 #include "led.h"
-#include "lwip/pbuf.h"
-#include "lwip/udp.h"
-#include "lwip/tcp.h"
 #include "lwip_demo.h"
 #include "lwip_comm.h"
 #include "comm_lwip_tcp.h"
 #include "device_service.h"
-#include "stdio.h"
-#include "string.h"
 
 
 #define LWIP_DEMO_RX_BUFSIZE         2000   /* 定义最大接收数据长度 */

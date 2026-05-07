@@ -1,33 +1,44 @@
-#include "protocol_text.h"
+/**
+ ****************************************************************************************************
+ * @file        protocol_text.c
+ * @author      Codex
+ * @date        2026-05-07
+ * @brief       应用层文本协议封装实现。
+ ****************************************************************************************************
+ */
+
 #include <stdio.h>
+
+#include "protocol_text.h"
+
 
 /**
  * @brief 生成 ADC 文本协议帧。
  *
- * 该函数是“固件协议”和“上位机解析代码”的对齐点。
- * 如果以后需要调整字段名、增加时间戳、增加设备 ID 或改成 JSON/二进制协议，
- * 应优先从这里修改，并同步更新 `PROTOCOL_FOR_PC.md`。
+ * 该函数是“固件协议”和“上位机解析代码”的对齐点。上位机 socket recv()
+ * 最终看到的应用层数据就是本函数生成的字符串。
  */
-int protocol_text_format_adc(const adc_sample_t *sample, char *buf, uint16_t buf_size)
+int protocol_text_format_adc(const adc_sample_t *aSample, char *aBuffer, uint16_t aSize)
 {
-    if ((sample == 0) || (buf == 0) || (buf_size == 0))
-    {
-        return -1;
-    }
+	if ((aSample == 0) || (aBuffer == 0) || (aSize == 0U))
+	{
+		return -1;
+	}
 
-    (void)buf_size;
-
-    /* 该字符串就是上位机 socket recv() 看到的应用层数据。
-     * 注意：
-     * - 这里没有 TCP 头、IP 头、以太网头。
-     * - `;` 用于分隔通道。
-     * - `,` 用于分隔同一通道内的原始值和电压值。
-     * - `\r\n` 用于标记一帧结束，上位机必须以此做粘包/拆包。
-     */
-    return sprintf(buf,
-                   "CH16=%u,V=%lu.%03luV;CH15=%u,V=%lu.%03luV;CH18=%u,V=%lu.%03luV;CH19=%u,V=%lu.%03luV\r\n",
-                   sample->raw[0], (unsigned long)(sample->mv[0] / 1000), (unsigned long)(sample->mv[0] % 1000),
-                   sample->raw[1], (unsigned long)(sample->mv[1] / 1000), (unsigned long)(sample->mv[1] % 1000),
-                   sample->raw[2], (unsigned long)(sample->mv[2] / 1000), (unsigned long)(sample->mv[2] % 1000),
-                   sample->raw[3], (unsigned long)(sample->mv[3] / 1000), (unsigned long)(sample->mv[3] % 1000));
+	/* NOTE：当前工程使用固定长度业务帧，调用方提供的 192 字节缓冲区足够容纳。 */
+	return snprintf(aBuffer,
+					aSize,
+					"CH16=%u,V=%lu.%03luV;CH15=%u,V=%lu.%03luV;CH18=%u,V=%lu.%03luV;CH19=%u,V=%lu.%03luV\r\n",
+					aSample->raw[0],
+					(unsigned long)(aSample->mv[0] / 1000U),
+					(unsigned long)(aSample->mv[0] % 1000U),
+					aSample->raw[1],
+					(unsigned long)(aSample->mv[1] / 1000U),
+					(unsigned long)(aSample->mv[1] % 1000U),
+					aSample->raw[2],
+					(unsigned long)(aSample->mv[2] / 1000U),
+					(unsigned long)(aSample->mv[2] % 1000U),
+					aSample->raw[3],
+					(unsigned long)(aSample->mv[3] / 1000U),
+					(unsigned long)(aSample->mv[3] % 1000U));
 }
