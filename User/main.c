@@ -27,6 +27,7 @@
 #include "lwip_comm.h"
 #include "lwip_demo.h"
 #include "comm_lwip_tcp.h"
+#include "comm_lwip_udp_discover.h"
 #include "device_service.h"
 #include "net_config.h"
 #include "sensor_adc_dma.h"
@@ -164,6 +165,12 @@ int main(void)
 		lwip_periodic_handle();
 	}
 #endif /* LWIP_DHCP */
+
+	/* 启动 UDP 发现服务：上位机可广播搜索设备真实 IP，再发起 TCP 连接。 */
+	if (comm_lwip_udp_discover_init() != 0)
+	{
+		printf("UDP discover init failed.\r\n");
+	}
 
 	/* 创建 TCP PCB，绑定 8080 端口，并注册 accept/recv/sent/error/poll 回调。 */
 	lwip_demo();

@@ -109,6 +109,12 @@ a lot of data that needs to be copied, this should be set high. */
 #define UDP_TTL                 255
 
 
+/* ---------- IP socket option ---------- */
+/* UDP 设备发现需要接收和发送 255.255.255.255 广播报文。 */
+#define IP_SOF_BROADCAST        1
+#define IP_SOF_BROADCAST_RECV   1
+
+
 /* ---------- Statistics options ---------- */
 #define LWIP_STATS 0
 
