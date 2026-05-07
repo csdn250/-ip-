@@ -8,7 +8,7 @@
 #include <string.h>
 
 /* ADC 主动上传周期。该周期属于业务策略，不属于 ADC 驱动或 TCP 驱动。 */
-#define DEVICE_SERVICE_ADC_SEND_INTERVAL 500U
+#define DEVICE_SERVICE_ADC_SEND_INTERVAL 2000U
 #define DEVICE_SERVICE_RX_LINE_SIZE      192U
 
 /* 业务层持有的桥接接口。使用指针保存，便于后续替换通信或采集实现。 */
@@ -24,6 +24,13 @@ static void device_service_send_text(const char *text)
     {
         s_comm->send((const uint8_t *)text, (uint16_t)strlen(text));
     }
+}
+
+static void device_service_reboot_after_reply(void)
+{
+    /* 给 tcp_write()/tcp_output() 留出一点发送时间，避免上位机还没收到 OK 就复位。 */
+    HAL_Delay(300);
+    NVIC_SystemReset();
 }
 
 static int device_service_parse_ipv4(const char *text, uint8_t ip[4])
@@ -135,7 +142,8 @@ static void device_service_handle_set_net(const char *line)
     }
 
     device_service_apply_config_to_ram(&config);
-    device_service_send_text("OK,NET_SAVED,REBOOT_REQUIRED\r\n");
+    device_service_send_text("OK,NET_SAVED,REBOOTING\r\n");
+    device_service_reboot_after_reply();
 }
 
 static void device_service_handle_reset_net(void)
@@ -150,7 +158,8 @@ static void device_service_handle_reset_net(void)
 
     net_config_get_default(&config);
     device_service_apply_config_to_ram(&config);
-    device_service_send_text("OK,NET_RESET,REBOOT_REQUIRED\r\n");
+    device_service_send_text("OK,NET_RESET,REBOOTING\r\n");
+    device_service_reboot_after_reply();
 }
 
 static void device_service_handle_line(char *line)
@@ -161,6 +170,11 @@ static void device_service_handle_line(char *line)
     {
         end--;
         *end = '\0';
+    }
+
+    if (line[0] == '\0')
+    {
+        return;
     }
 
     if ((strcmp(line, "GET_NET") == 0) || (strcmp(line, "GET_NET?") == 0))
@@ -177,7 +191,7 @@ static void device_service_handle_line(char *line)
     }
     else if (strcmp(line, "SAVE_NET") == 0)
     {
-        device_service_send_text("OK,SET_NET_ALREADY_SAVES\r\n");
+        device_service_send_text("OK,SET_NET_AUTO_SAVES\r\n");
     }
     else if (strcmp(line, "REBOOT") == 0)
     {
@@ -188,6 +202,11 @@ static void device_service_handle_line(char *line)
     else if (strcmp(line, "PING") == 0)
     {
         device_service_send_text("PONG\r\n");
+    }
+    else if (strncmp(line, "ECHO,", 5) == 0)
+    {
+        device_service_send_text(line + 5);
+        device_service_send_text("\r\n");
     }
     else
     {
@@ -260,12 +279,46 @@ void device_service_poll(void)
 void device_service_on_rx(const uint8_t *data, uint16_t len)
 {
     uint16_t i;
+    uint8_t has_line_delimiter = 0U;
+    uint8_t maybe_command = 0U;
 
     /* data 是 TCP payload，不是原始以太网帧。
      * 以太网头、IP 头、TCP 头已经由 lwIP 和协议栈处理完成。
      */
     if ((s_comm == 0) || (s_comm->send == 0) || (data == 0) || (len == 0))
     {
+        return;
+    }
+
+    for (i = 0; i < len; i++)
+    {
+        if (data[i] == '\n')
+        {
+            has_line_delimiter = 1U;
+            break;
+        }
+    }
+
+    if ((len >= 3U) &&
+        ((memcmp(data, "GET", 3U) == 0) ||
+         (memcmp(data, "SET", 3U) == 0) ||
+         (memcmp(data, "RES", 3U) == 0) ||
+         (memcmp(data, "FAC", 3U) == 0) ||
+         (memcmp(data, "SAV", 3U) == 0) ||
+         (memcmp(data, "REB", 3U) == 0) ||
+         (memcmp(data, "PIN", 3U) == 0) ||
+         (memcmp(data, "ECH", 3U) == 0)))
+    {
+        maybe_command = 1U;
+    }
+
+    /* 兼容旧的链路测试方式：
+     * 网络调试助手直接发送 `test` 这类无 \r\n 的普通文本时，立即原样回显。
+     * 以 GET/SET/RESET/REBOOT/PING/ECHO 开头的内容仍按命令缓存，等待 \r\n 结束。
+     */
+    if ((has_line_delimiter == 0U) && (maybe_command == 0U) && (s_rx_line_len == 0U))
+    {
+        s_comm->send(data, len);
         return;
     }
 

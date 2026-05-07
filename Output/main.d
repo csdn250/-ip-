@@ -158,6 +158,7 @@
 ..\..\output\main.o: ..\..\Core\App\device_service.h
 ..\..\output\main.o: ..\..\Core\Bridge\comm_bridge.h
 ..\..\output\main.o: ..\..\Core\Bridge\sensor_bridge.h
+..\..\output\main.o: ..\..\Core\Config\net_config.h
 ..\..\output\main.o: ..\..\Core\Impl\comm_lwip_tcp.h
 ..\..\output\main.o: ..\..\Middlewares\lwip\src\include\lwip/tcp.h
 ..\..\output\main.o: ..\..\Middlewares\lwip\src\include\lwip/tcpbase.h

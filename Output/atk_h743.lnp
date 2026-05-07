@@ -30,6 +30,8 @@
 "..\..\output\stm32h7xx_hal_eth_ex.o"
 "..\..\output\stm32h7xx_hal_adc.o"
 "..\..\output\stm32h7xx_hal_adc_ex.o"
+"..\..\output\stm32h7xx_hal_flash.o"
+"..\..\output\stm32h7xx_hal_flash_ex.o"
 "..\..\output\led.o"
 "..\..\output\lcd.o"
 "..\..\output\key.o"
@@ -75,8 +77,10 @@
 "..\..\output\lwip_demo.o"
 "..\..\output\device_service.o"
 "..\..\output\protocol_text.o"
+"..\..\output\net_config.o"
 "..\..\output\comm_lwip_tcp.o"
 "..\..\output\sensor_adc_dma.o"
+"..\..\output\flash_storage.o"
 --library_type=microlib --strict --scatter "..\..\Output\atk_h743.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

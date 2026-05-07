@@ -118,18 +118,17 @@ void lwip_demo(void)
 
     lcd_clear(WHITE);                   /* 清屏 */
     g_point_color = RED;
-    lcd_show_string(5, 30, 200, 16, 16, "STM32", g_point_color);
-    lcd_show_string(5, 50, 200, 16, 16, "TCP Server Test", g_point_color);
-    lcd_show_string(5, 70, 200, 16, 16, "ATOM@ALIENTEK", g_point_color);
-    lcd_show_string(5, 90, 200, 16, 16, "KEY0:Send data", g_point_color);
+    lcd_show_string(5, 24, lcddev.width - 10, 32, 32, "STM32", g_point_color);
+    lcd_show_string(5, 62, lcddev.width - 10, 24, 24, "TCP Server", g_point_color);
+    lcd_show_string(5, 92, lcddev.width - 10, 24, 24, "KEY0:Send", g_point_color);
     tbuf = mymalloc(SRAMIN, 200);       /* 申请内存 */
 
     if (tbuf == NULL)return ;           /* 内存申请失败了,直接退出 */
 
     sprintf((char *)tbuf, "Server IP:%d.%d.%d.%d", g_lwipdev.ip[0], g_lwipdev.ip[1], g_lwipdev.ip[2], g_lwipdev.ip[3]); /* 服务器IP */
-    lcd_show_string(5, 130, 210, 16, 16, tbuf, g_point_color);
+    lcd_show_string(5, 130, lcddev.width - 10, 24, 24, tbuf, g_point_color);
     sprintf((char *)tbuf, "Server Port:%d", LWIP_DEMO_PORT);                                                            /* 服务器端口号 */
-    lcd_show_string(5, 150, 210, 16, 16, tbuf, g_point_color);
+    lcd_show_string(5, 160, lcddev.width - 10, 24, 24, tbuf, g_point_color);
     /* 创建 TCP 控制块。PCB 是 lwIP 用于维护一个 TCP 端点状态的核心对象。 */
     tcppcbnew = tcp_new();              /* 创建一个新的pcb */
 
@@ -169,9 +168,9 @@ void lwip_demo(void)
         if (g_lwip_send_flag & 1 << 5)                          /* 是否连接上 */
         {
             sprintf((char *)tbuf, "Client IP:%d.%d.%d.%d", g_lwipdev.remoteip[0], g_lwipdev.remoteip[1], g_lwipdev.remoteip[2], g_lwipdev.remoteip[3]); /* 客户端IP */
-            lcd_show_string(5, 170, 230, 16, 16, tbuf, g_point_color);
+            lcd_show_string(5, 190, lcddev.width - 10, 24, 24, tbuf, g_point_color);
             g_point_color = RED;
-            lcd_show_string(5, 190, lcddev.width - 30, lcddev.height - 190, 16, "Receive Data:", g_point_color); /* 提示消息 */
+            lcd_show_string(5, 220, lcddev.width - 10, 24, 24, "Receive Data:", g_point_color); /* 提示消息 */
             g_point_color = BLUE;
         }
         else if (g_lwip_send_flag & 1 << 5)

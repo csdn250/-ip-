@@ -3,11 +3,9 @@
 ..\..\output\device_service.o: F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\Bin\..\include\stdint.h
 ..\..\output\device_service.o: ..\..\Core\Bridge\comm_bridge.h
 ..\..\output\device_service.o: ..\..\Core\Bridge\sensor_bridge.h
-..\..\output\device_service.o: ..\..\Core\Protocol\protocol_text.h
-..\..\output\device_service.o: ..\..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal.h
-..\..\output\device_service.o: ..\..\User\stm32h7xx_hal_conf.h
-..\..\output\device_service.o: ..\..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_rcc.h
-..\..\output\device_service.o: ..\..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_def.h
+..\..\output\device_service.o: ..\..\Middlewares\lwip\arch\lwip_comm.h
+..\..\output\device_service.o: ..\..\Drivers\./BSP/ETHERNET/ethernet.h
+..\..\output\device_service.o: ..\..\Drivers\./SYSTEM/sys/sys.h
 ..\..\output\device_service.o: ..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include\stm32h7xx.h
 ..\..\output\device_service.o: ..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include\stm32h743xx.h
 ..\..\output\device_service.o: ..\..\Drivers\CMSIS\Include\core_cm7.h
@@ -17,6 +15,10 @@
 ..\..\output\device_service.o: ..\..\Drivers\CMSIS\Include\mpu_armv7.h
 ..\..\output\device_service.o: ..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include\system_stm32h7xx.h
 ..\..\output\device_service.o: ..\..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal.h
+..\..\output\device_service.o: ..\..\User\stm32h7xx_hal_conf.h
+..\..\output\device_service.o: ..\..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_rcc.h
+..\..\output\device_service.o: ..\..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_def.h
+..\..\output\device_service.o: ..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include\stm32h7xx.h
 ..\..\output\device_service.o: ..\..\Drivers\STM32H7xx_HAL_Driver\Inc\Legacy/stm32_hal_legacy.h
 ..\..\output\device_service.o: F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\Bin\..\include\stddef.h
 ..\..\output\device_service.o: F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\Bin\..\include\math.h
@@ -108,3 +110,41 @@
 ..\..\output\device_service.o: ..\..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_ll_usb.h
 ..\..\output\device_service.o: ..\..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd_ex.h
 ..\..\output\device_service.o: ..\..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_hcd.h
+..\..\output\device_service.o: ..\..\Drivers\CMSIS\Include\core_cm7.h
+..\..\output\device_service.o: ..\..\Middlewares\lwip\src\include\netif/etharp.h
+..\..\output\device_service.o: ..\..\Middlewares\lwip\src\include\lwip/etharp.h
+..\..\output\device_service.o: ..\..\Middlewares\lwip\src\include\lwip/opt.h
+..\..\output\device_service.o: ..\..\Middlewares\lwip\arch\lwipopts.h
+..\..\output\device_service.o: ..\..\Middlewares\lwip\src\include\lwip/debug.h
+..\..\output\device_service.o: ..\..\Middlewares\lwip\src\include\lwip/arch.h
+..\..\output\device_service.o: ..\..\Middlewares\lwip\arch/cc.h
+..\..\output\device_service.o: F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\Bin\..\include\stdlib.h
+..\..\output\device_service.o: F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\Bin\..\include\stdio.h
+..\..\output\device_service.o: F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\Bin\..\include\inttypes.h
+..\..\output\device_service.o: F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\Bin\..\include\limits.h
+..\..\output\device_service.o: F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\Bin\..\include\ctype.h
+..\..\output\device_service.o: ..\..\Middlewares\lwip\src\include\lwip/opt.h
+..\..\output\device_service.o: ..\..\Middlewares\lwip\src\include\lwip/pbuf.h
+..\..\output\device_service.o: ..\..\Middlewares\lwip\src\include\lwip/err.h
+..\..\output\device_service.o: ..\..\Middlewares\lwip\src\include\lwip/ip4_addr.h
+..\..\output\device_service.o: ..\..\Middlewares\lwip\src\include\lwip/def.h
+..\..\output\device_service.o: ..\..\Middlewares\lwip\src\include\lwip/netif.h
+..\..\output\device_service.o: ..\..\Middlewares\lwip\src\include\lwip/ip_addr.h
+..\..\output\device_service.o: ..\..\Middlewares\lwip\src\include\lwip/ip6_addr.h
+..\..\output\device_service.o: ..\..\Middlewares\lwip\src\include\lwip/stats.h
+..\..\output\device_service.o: ..\..\Middlewares\lwip\src\include\lwip/mem.h
+..\..\output\device_service.o: ..\..\Middlewares\lwip\src\include\lwip/memp.h
+..\..\output\device_service.o: ..\..\Middlewares\lwip\src\include\lwip/priv/memp_std.h
+..\..\output\device_service.o: ..\..\Middlewares\lwip\src\include\lwip/priv/memp_std.h
+..\..\output\device_service.o: ..\..\Middlewares\lwip\src\include\lwip/priv/memp_priv.h
+..\..\output\device_service.o: ..\..\Middlewares\lwip\src\include\lwip/priv/mem_priv.h
+..\..\output\device_service.o: ..\..\Middlewares\lwip\src\include\lwip/stats.h
+..\..\output\device_service.o: ..\..\Middlewares\lwip\src\include\lwip/ip4.h
+..\..\output\device_service.o: ..\..\Middlewares\lwip\src\include\lwip/prot/ip4.h
+..\..\output\device_service.o: ..\..\Middlewares\lwip\src\include\lwip/prot/ethernet.h
+..\..\output\device_service.o: ..\..\Middlewares\lwip\src\include\lwip/prot/ieee.h
+..\..\output\device_service.o: ..\..\Middlewares\lwip\src\include\lwip/prot/etharp.h
+..\..\output\device_service.o: ..\..\Middlewares\lwip\src\include\netif/ethernet.h
+..\..\output\device_service.o: ..\..\Core\Config\net_config.h
+..\..\output\device_service.o: ..\..\Core\Protocol\protocol_text.h
+..\..\output\device_service.o: F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\Bin\..\include\string.h

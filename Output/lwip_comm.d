@@ -142,6 +142,7 @@
 ..\..\output\lwip_comm.o: ..\..\Middlewares\lwip\src\include\lwip/prot/ieee.h
 ..\..\output\lwip_comm.o: ..\..\Middlewares\lwip\src\include\lwip/prot/etharp.h
 ..\..\output\lwip_comm.o: ..\..\Middlewares\lwip\src\include\netif/ethernet.h
+..\..\output\lwip_comm.o: ..\..\Core\Config\net_config.h
 ..\..\output\lwip_comm.o: ..\..\Middlewares\lwip\src\include\netif/etharp.h
 ..\..\output\lwip_comm.o: ..\..\Middlewares\lwip\src\include\lwip/init.h
 ..\..\output\lwip_comm.o: ..\..\Middlewares\lwip\arch\ethernetif.h

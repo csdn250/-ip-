@@ -30,39 +30,39 @@
 void lwip_test_ui(uint8_t mode)
 {
     uint8_t speed;
-    uint8_t buf[30];
+    uint8_t buf[40];
     
     if(mode & 1<< 0)
     {
         lcd_show_string(6, 10, 200, 32, 32, "STM32", DARKBLUE);
         lcd_show_string(6, 40, lcddev.width, 24, 24, "lwIP TcpServer Test", DARKBLUE);
-        lcd_show_string(6, 70, 200, 16, 16, "ATOM@ALIENTEK", DARKBLUE);
+        lcd_show_string(6, 72, lcddev.width - 12, 24, 24, "ATOM@ALIENTEK", DARKBLUE);
     }
     
     if(mode & 1 << 1)
     {
-        lcd_show_string(6, 110, 200, 16, 16, "lwIP Init Successed", MAGENTA);
+        lcd_show_string(6, 110, lcddev.width - 12, 24, 24, "lwIP Init OK", MAGENTA);
         
         if(g_lwipdev.dhcpstatus == 2)
         {
-            sprintf((char*)buf,"DHCP IP:%d.%d.%d.%d",g_lwipdev.ip[0],g_lwipdev.ip[1],g_lwipdev.ip[2],g_lwipdev.ip[3]);      /* 显示动态IP地址 */
+            sprintf((char*)buf,"DHCP:%d.%d.%d.%d",g_lwipdev.ip[0],g_lwipdev.ip[1],g_lwipdev.ip[2],g_lwipdev.ip[3]);      /* 显示动态IP地址 */
         }
         else
         {
-            sprintf((char*)buf,"Static IP:%d.%d.%d.%d",g_lwipdev.ip[0],g_lwipdev.ip[1],g_lwipdev.ip[2],g_lwipdev.ip[3]);    /* 打印静态IP地址 */
+            sprintf((char*)buf,"IP:%d.%d.%d.%d",g_lwipdev.ip[0],g_lwipdev.ip[1],g_lwipdev.ip[2],g_lwipdev.ip[3]);    /* 打印静态IP地址 */
         }
         
-        lcd_show_string(6, 130, 200, 16, 16, (char*)buf, MAGENTA);
+        lcd_show_string(6, 140, lcddev.width - 12, 24, 24, (char*)buf, MAGENTA);
         
         speed = ethernet_chip_get_speed();                                                                                  /* 得到网速 */
         
         if(speed)
         {
-            lcd_show_string(6, 150, 200, 16, 16, "Ethernet Speed:100M", MAGENTA);
+            lcd_show_string(6, 170, lcddev.width - 12, 24, 24, "Speed:100M", MAGENTA);
         }
         else
         {
-            lcd_show_string(6, 150, 200, 16, 16, "Ethernet Speed:10M", MAGENTA);
+            lcd_show_string(6, 170, lcddev.width - 12, 24, 24, "Speed:10M", MAGENTA);
         }
     }
 }
@@ -104,8 +104,8 @@ int main(void)
         {
             net_config_clear();
             lcd_clear(WHITE);
-            lcd_show_string(6, 110, 230, 16, 16, "Net config reset", RED);
-            lcd_show_string(6, 130, 230, 16, 16, "Default IP:192.168.1.30", RED);
+            lcd_show_string(6, 110, lcddev.width - 12, 24, 24, "Net reset", RED);
+            lcd_show_string(6, 140, lcddev.width - 12, 24, 24, "IP:192.168.1.30", RED);
             delay_ms(800);
         }
     }
