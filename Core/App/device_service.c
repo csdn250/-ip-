@@ -26,7 +26,9 @@
 
 static const comm_bridge_t *s_comm;
 static const sensor_bridge_t *s_sensor;
+#if (DEVICE_SERVICE_ADC_SEND_INTERVAL > 0U)
 static uint32_t s_adc_send_tick;
+#endif /* DEVICE_SERVICE_ADC_SEND_INTERVAL > 0U */
 static uint32_t s_adc_frame_seq;
 static adc_sample_t s_adc_sample;
 static uint8_t s_adc_frame[PROTOCOL_ADC_BINARY_FRAME_SIZE];
@@ -382,7 +384,9 @@ void device_service_init(const comm_bridge_t *aComm, const sensor_bridge_t *aSen
 	/* 只保存接口，不保存具体实现细节，便于后续替换通信或采集实现。 */
 	s_comm = aComm;
 	s_sensor = aSensor;
+#if (DEVICE_SERVICE_ADC_SEND_INTERVAL > 0U)
 	s_adc_send_tick = HAL_GetTick();
+#endif /* DEVICE_SERVICE_ADC_SEND_INTERVAL > 0U */
 	s_adc_frame_seq = 0U;
 	s_rx_line_len = 0U;
 
@@ -399,8 +403,8 @@ void device_service_init(const comm_bridge_t *aComm, const sensor_bridge_t *aSen
  * 主循环或 TCP Server 循环需要持续调用本函数。当前职责：
  * 1. 判断上位机是否已经建立 TCP 连接。
  * 2. 按 2 秒周期读取 ADC DMA 采样结果。
- * 3. 调用协议层生成文本帧。
- * 4. 通过通信桥发送给上位机。
+ * 3. 调用协议层生成二进制 ADC 帧。
+ * 4. 通过通信桥排队发送给上位机。
  */
 void device_service_poll(void)
 {
@@ -408,7 +412,8 @@ void device_service_poll(void)
 
 	/* 防御式检查：底层桥接未绑定时直接返回，避免访问空指针。 */
 	if ((s_comm == 0) || (s_sensor == 0) ||
-		(s_comm->send == 0) || (s_comm->is_connected == 0) ||
+		(s_comm->send == 0) || (s_comm->can_send == 0) ||
+		(s_comm->is_connected == 0) ||
 		(s_sensor->read == 0))
 	{
 		return;
@@ -419,12 +424,18 @@ void device_service_poll(void)
 		return;
 	}
 
+#if (DEVICE_SERVICE_ADC_SEND_INTERVAL > 0U)
 	if ((HAL_GetTick() - s_adc_send_tick) < DEVICE_SERVICE_ADC_SEND_INTERVAL)
 	{
 		return;
 	}
-
 	s_adc_send_tick = HAL_GetTick();
+#endif /* DEVICE_SERVICE_ADC_SEND_INTERVAL > 0U */
+
+	if (!s_comm->can_send(PROTOCOL_ADC_BINARY_FRAME_SIZE))
+	{
+		return;
+	}
 
 	/* 仅当 DMA 已经完成一批采集时才会读取成功。 */
 	if (s_sensor->read(&s_adc_sample) != 0)

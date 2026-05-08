@@ -377,6 +377,7 @@ void lwip_tcp_server_error(void *arg, err_t err)
     LWIP_UNUSED_ARG(err);
     printf("tcp error:%x\r\n", (uint32_t)arg);
     g_lwip_tcp_client_pcb = NULL;
+    comm_lwip_tcp_set_client(NULL);
 
     if (arg != NULL)mem_free(arg); /* 释放内存 */
 }
@@ -446,9 +447,18 @@ err_t lwip_tcp_server_poll(void *arg, struct tcp_pcb *tpcb)
     struct tcp_server_struct *es;
     es = (struct tcp_server_struct *)arg;
 
+    if (es == NULL)
+    {
+        return ERR_OK;
+    }
+
     if (es->state == ES_TCPSERVER_CLOSING)              /* 需要关闭连接?执行关闭操作 */
     {
         lwip_tcp_server_connection_close(tpcb, es);     /* 关闭连接 */
+    }
+    else
+    {
+        comm_lwip_tcp_poll();
     }
 
     ret_err = ERR_OK;
@@ -479,7 +489,14 @@ err_t lwip_tcp_server_sent(void *arg, struct tcp_pcb *tpcb, u16_t len)
     LWIP_UNUSED_ARG(len);
     es = (struct tcp_server_struct *) arg;
 
+    if (es == NULL)
+    {
+        comm_lwip_tcp_on_sent();
+        return ERR_OK;
+    }
+
     if (es->p)lwip_tcp_server_senddata(tpcb, es);   /* 发送数据 */
+    comm_lwip_tcp_on_sent();
 
     return ERR_OK;
 }

@@ -1,4 +1,5 @@
 ..\..\output\comm_lwip_tcp.o: ..\..\Core\Impl\comm_lwip_tcp.c
+..\..\output\comm_lwip_tcp.o: F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\Bin\..\include\string.h
 ..\..\output\comm_lwip_tcp.o: ..\..\Core\Impl\comm_lwip_tcp.h
 ..\..\output\comm_lwip_tcp.o: F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\Bin\..\include\stdint.h
 ..\..\output\comm_lwip_tcp.o: ..\..\Middlewares\lwip\src\include\lwip/tcp.h

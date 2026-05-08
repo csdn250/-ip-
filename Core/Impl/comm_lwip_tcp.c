@@ -16,8 +16,8 @@
 #include "device_service.h"
 
 
-#define COMM_LWIP_TCP_TX_SLOT_NUM   8U
-#define COMM_LWIP_TCP_TX_SLOT_SIZE  2048U
+#define COMM_LWIP_TCP_TX_SLOT_NUM   2U
+#define COMM_LWIP_TCP_TX_SLOT_SIZE  1460U
 
 
 typedef struct
@@ -34,6 +34,85 @@ static comm_lwip_tcp_tx_slot_t s_tx_slots[COMM_LWIP_TCP_TX_SLOT_NUM];
 static uint8_t s_tx_read_index;
 static uint8_t s_tx_write_index;
 static uint8_t s_tx_count;
+
+
+/**
+ * @brief 清空 TCP 桥接层内部发送队列。
+ */
+static void comm_lwip_tcp_clear_queue(void)
+{
+	s_tx_read_index = 0U;
+	s_tx_write_index = 0U;
+	s_tx_count = 0U;
+}
+
+
+/**
+ * @brief 尽可能把内部发送队列中的数据提交给 lwIP。
+ *
+ * 本函数不会阻塞等待 ACK。若 tcp_sndbuf() 暂时不足，会保留当前发送进度，
+ * 等待 tcp_sent 回调或 poll 回调再次调用本函数继续发送。
+ */
+static void comm_lwip_tcp_pump(void)
+{
+	comm_lwip_tcp_tx_slot_t *slot;
+	uint16_t remain;
+	uint16_t send_len;
+	uint16_t sndbuf;
+	err_t err;
+
+	if (s_client_pcb == 0)
+	{
+		return;
+	}
+
+	while (s_tx_count > 0U)
+	{
+		slot = &s_tx_slots[s_tx_read_index];
+
+		if (slot->offset >= slot->len)
+		{
+			slot->len = 0U;
+			slot->offset = 0U;
+			s_tx_read_index = (uint8_t)((s_tx_read_index + 1U) % COMM_LWIP_TCP_TX_SLOT_NUM);
+			--s_tx_count;
+			continue;
+		}
+
+		sndbuf = tcp_sndbuf(s_client_pcb);
+
+		if (sndbuf == 0U)
+		{
+			break;
+		}
+
+		remain = (uint16_t)(slot->len - slot->offset);
+		send_len = remain;
+
+		if (send_len > sndbuf)
+		{
+			send_len = sndbuf;
+		}
+
+		if (send_len > TCP_MSS)
+		{
+			send_len = TCP_MSS;
+		}
+
+		err = tcp_write(s_client_pcb,
+						&slot->data[slot->offset],
+						send_len,
+						TCP_WRITE_FLAG_COPY);
+
+		if (err != ERR_OK)
+		{
+			break;
+		}
+
+		slot->offset = (uint16_t)(slot->offset + send_len);
+		tcp_output(s_client_pcb);
+	}
+}
 
 
 /**
@@ -56,19 +135,38 @@ static int comm_lwip_tcp_send_impl(const uint8_t *aData, uint16_t aLen)
 		return -1;
 	}
 
-	if (aLen > tcp_sndbuf(s_client_pcb))
+	if (aLen > COMM_LWIP_TCP_TX_SLOT_SIZE)
 	{
 		return -2;
 	}
 
-	/* tcp_write() 只接收应用层 payload，后续封装由 lwIP 和以太网驱动完成。 */
-	if (tcp_write(s_client_pcb, aData, aLen, TCP_WRITE_FLAG_COPY) != ERR_OK)
+	if (s_tx_count >= COMM_LWIP_TCP_TX_SLOT_NUM)
 	{
 		return -3;
 	}
 
-	tcp_output(s_client_pcb);
+	memcpy(s_tx_slots[s_tx_write_index].data, aData, aLen);
+	s_tx_slots[s_tx_write_index].len = aLen;
+	s_tx_slots[s_tx_write_index].offset = 0U;
+	s_tx_write_index = (uint8_t)((s_tx_write_index + 1U) % COMM_LWIP_TCP_TX_SLOT_NUM);
+	++s_tx_count;
+
+	comm_lwip_tcp_pump();
 	return 0;
+}
+
+
+/**
+ * @brief 查询发送队列是否还有空位可提交一帧。
+ */
+static int comm_lwip_tcp_can_send_impl(uint16_t aLen)
+{
+	if ((s_client_pcb == 0) || (aLen == 0U) || (aLen > COMM_LWIP_TCP_TX_SLOT_SIZE))
+	{
+		return 0;
+	}
+
+	return (s_tx_count < COMM_LWIP_TCP_TX_SLOT_NUM);
 }
 
 
@@ -87,6 +185,7 @@ static int comm_lwip_tcp_is_connected_impl(void)
 static const comm_bridge_t s_comm_lwip_tcp_bridge =
 {
 	comm_lwip_tcp_send_impl,
+	comm_lwip_tcp_can_send_impl,
 	comm_lwip_tcp_is_connected_impl
 };
 
@@ -113,6 +212,11 @@ const comm_bridge_t *comm_lwip_tcp_get_bridge(void)
  */
 void comm_lwip_tcp_set_client(struct tcp_pcb *aPcb)
 {
+	if (aPcb != s_client_pcb)
+	{
+		comm_lwip_tcp_clear_queue();
+	}
+
 	s_client_pcb = aPcb;
 }
 
@@ -128,4 +232,22 @@ void comm_lwip_tcp_set_client(struct tcp_pcb *aPcb)
 void comm_lwip_tcp_on_receive(const uint8_t *aData, uint16_t aLen)
 {
 	device_service_on_rx(aData, aLen);
+}
+
+
+/**
+ * @brief TCP ACK 回调入口，继续提交发送队列中的剩余数据。
+ */
+void comm_lwip_tcp_on_sent(void)
+{
+	comm_lwip_tcp_pump();
+}
+
+
+/**
+ * @brief TCP poll 回调入口，兜底推动发送队列。
+ */
+void comm_lwip_tcp_poll(void)
+{
+	comm_lwip_tcp_pump();
 }
