@@ -114,7 +114,7 @@ I (..\..\Drivers\BSP\LED\led.h)(0x666A4AF0)
 I (..\..\Drivers\BSP\LCD\lcd.h)(0x666A4AF0)
 I (F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\include\stdlib.h)(0x60252374)
 I (..\..\Drivers\BSP\KEY\key.h)(0x666A4AF0)
-I (..\..\Drivers\BSP\ADC\adc.h)(0x681C5B85)
+I (..\..\Drivers\BSP\ADC\adc.h)(0x69FD9712)
 I (..\..\Drivers\BSP\MPU\mpu.h)(0x666A4AF0)
 I (..\..\Drivers\BSP\LCD\ltdc.h)(0x666A4AF0)
 I (..\..\Drivers\BSP\SDRAM\sdram.h)(0x666A4AF0)
@@ -164,7 +164,7 @@ I (..\..\Middlewares\lwip\src\include\lwip/prot/icmp.h)(0x666A4AF3)
 I (..\..\Core\Bridge\comm_bridge.h)(0x69FC62EB)
 I (..\..\Core\Impl\comm_lwip_udp_discover.h)(0x69FC32D7)
 I (..\..\Core\App\device_service.h)(0x69FC2AEF)
-I (..\..\Core\Bridge\sensor_bridge.h)(0x69FD3F53)
+I (..\..\Core\Bridge\sensor_bridge.h)(0x69FD9790)
 I (..\..\Core\Config\net_config.h)(0x69FC35EE)
 I (..\..\Core\Impl\sensor_adc_dma.h)(0x69FC2B01)
 F (..\..\User\stm32h7xx_it.c)(0x666A4AF3)(--c99 -c --cpu Cortex-M7.fp.dp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include -I ..\..\Drivers\STM32H7xx_HAL_Driver\Inc -I ..\..\Drivers\CMSIS\Include -I ..\..\Middlewares -I ..\..\Drivers -I ..\..\User -I ..\..\Middlewares\lwip\arch -I ..\..\Middlewares\lwip -I ..\..\Middlewares\lwip\src\include -I ..\..\Middlewares\lwip\lwip_app -I ..\..\Core\App -I ..\..\Core\Bridge -I ..\..\Core\Protocol -I ..\..\Core\Config -I ..\..\Core\Impl -I ..\..\Drivers\BSP\ADC -I ..\..\Drivers\BSP\LED -I ..\..\Drivers\BSP\KEY -I ..\..\Drivers\BSP\LCD -I ..\..\Drivers\BSP\MPU -I ..\..\Drivers\BSP\SDRAM -I ..\..\Drivers\BSP\ETHERNET -I ..\..\Drivers\BSP\PCF8574 -I ..\..\Drivers\BSP\IIC -I ..\..\Drivers\SYSTEM\sys -I ..\..\Drivers\SYSTEM\delay -I ..\..\Drivers\SYSTEM\usart-I"F:\work software\STM32\ProgramFile\MDK\Packs\Keil\STM32H7xx_DFP\3.0.0\Drivers\CMSIS\Device\ST\STM32H7xx\Include"-D__UVISION_VERSION="538" -DSTM32H743xx -DUSE_HAL_DRIVER -DSTM32H743xx-o ..\..\output\stm32h7xx_it.o --omf_browse ..\..\output\stm32h7xx_it.crf --depend ..\..\output\stm32h7xx_it.d)
@@ -4557,8 +4557,8 @@ I (..\..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_ll_usb.h)(0x666A4AF2)
 I (..\..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd_ex.h)(0x666A4AF1)
 I (..\..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_hcd.h)(0x666A4AF1)
 I (..\..\Drivers\./SYSTEM/delay/delay.h)(0x666A4AF3)
-F (..\..\Drivers\BSP\ADC\adc.c)(0x69FD3B93)(--c99 -c --cpu Cortex-M7.fp.dp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include -I ..\..\Drivers\STM32H7xx_HAL_Driver\Inc -I ..\..\Drivers\CMSIS\Include -I ..\..\Middlewares -I ..\..\Drivers -I ..\..\User -I ..\..\Middlewares\lwip\arch -I ..\..\Middlewares\lwip -I ..\..\Middlewares\lwip\src\include -I ..\..\Middlewares\lwip\lwip_app -I ..\..\Core\App -I ..\..\Core\Bridge -I ..\..\Core\Protocol -I ..\..\Core\Config -I ..\..\Core\Impl -I ..\..\Drivers\BSP\ADC -I ..\..\Drivers\BSP\LED -I ..\..\Drivers\BSP\KEY -I ..\..\Drivers\BSP\LCD -I ..\..\Drivers\BSP\MPU -I ..\..\Drivers\BSP\SDRAM -I ..\..\Drivers\BSP\ETHERNET -I ..\..\Drivers\BSP\PCF8574 -I ..\..\Drivers\BSP\IIC -I ..\..\Drivers\SYSTEM\sys -I ..\..\Drivers\SYSTEM\delay -I ..\..\Drivers\SYSTEM\usart-I"F:\work software\STM32\ProgramFile\MDK\Packs\Keil\STM32H7xx_DFP\3.0.0\Drivers\CMSIS\Device\ST\STM32H7xx\Include"-D__UVISION_VERSION="538" -DSTM32H743xx -DUSE_HAL_DRIVER -DSTM32H743xx-o ..\..\output\adc.o --omf_browse ..\..\output\adc.crf --depend ..\..\output\adc.d)
-I (..\..\Drivers\./BSP/ADC/adc.h)(0x681C5B85)
+F (..\..\Drivers\BSP\ADC\adc.c)(0x69FDA0DD)(--c99 -c --cpu Cortex-M7.fp.dp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include -I ..\..\Drivers\STM32H7xx_HAL_Driver\Inc -I ..\..\Drivers\CMSIS\Include -I ..\..\Middlewares -I ..\..\Drivers -I ..\..\User -I ..\..\Middlewares\lwip\arch -I ..\..\Middlewares\lwip -I ..\..\Middlewares\lwip\src\include -I ..\..\Middlewares\lwip\lwip_app -I ..\..\Core\App -I ..\..\Core\Bridge -I ..\..\Core\Protocol -I ..\..\Core\Config -I ..\..\Core\Impl -I ..\..\Drivers\BSP\ADC -I ..\..\Drivers\BSP\LED -I ..\..\Drivers\BSP\KEY -I ..\..\Drivers\BSP\LCD -I ..\..\Drivers\BSP\MPU -I ..\..\Drivers\BSP\SDRAM -I ..\..\Drivers\BSP\ETHERNET -I ..\..\Drivers\BSP\PCF8574 -I ..\..\Drivers\BSP\IIC -I ..\..\Drivers\SYSTEM\sys -I ..\..\Drivers\SYSTEM\delay -I ..\..\Drivers\SYSTEM\usart-I"F:\work software\STM32\ProgramFile\MDK\Packs\Keil\STM32H7xx_DFP\3.0.0\Drivers\CMSIS\Device\ST\STM32H7xx\Include"-D__UVISION_VERSION="538" -DSTM32H743xx -DUSE_HAL_DRIVER -DSTM32H743xx-o ..\..\output\adc.o --omf_browse ..\..\output\adc.crf --depend ..\..\output\adc.d)
+I (..\..\Drivers\./BSP/ADC/adc.h)(0x69FD9712)
 I (..\..\Drivers\./SYSTEM/sys/sys.h)(0x666A4AF3)
 I (..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include\stm32h7xx.h)(0x666A4AF0)
 I (..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include\stm32h743xx.h)(0x666A4AF0)
@@ -6054,8 +6054,8 @@ I (..\..\Middlewares\lwip\src\include\netif/ethernet.h)(0x666A4AF3)
 I (..\..\Core\Impl\comm_lwip_tcp.h)(0x69FC62F9)
 I (..\..\Core\Bridge\comm_bridge.h)(0x69FC62EB)
 I (..\..\Core\App\device_service.h)(0x69FC2AEF)
-I (..\..\Core\Bridge\sensor_bridge.h)(0x69FD3F53)
-F (..\..\Core\App\device_service.c)(0x69FD3F53)(--c99 -c --cpu Cortex-M7.fp.dp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include -I ..\..\Drivers\STM32H7xx_HAL_Driver\Inc -I ..\..\Drivers\CMSIS\Include -I ..\..\Middlewares -I ..\..\Drivers -I ..\..\User -I ..\..\Middlewares\lwip\arch -I ..\..\Middlewares\lwip -I ..\..\Middlewares\lwip\src\include -I ..\..\Middlewares\lwip\lwip_app -I ..\..\Core\App -I ..\..\Core\Bridge -I ..\..\Core\Protocol -I ..\..\Core\Config -I ..\..\Core\Impl -I ..\..\Drivers\BSP\ADC -I ..\..\Drivers\BSP\LED -I ..\..\Drivers\BSP\KEY -I ..\..\Drivers\BSP\LCD -I ..\..\Drivers\BSP\MPU -I ..\..\Drivers\BSP\SDRAM -I ..\..\Drivers\BSP\ETHERNET -I ..\..\Drivers\BSP\PCF8574 -I ..\..\Drivers\BSP\IIC -I ..\..\Drivers\SYSTEM\sys -I ..\..\Drivers\SYSTEM\delay -I ..\..\Drivers\SYSTEM\usart-I"F:\work software\STM32\ProgramFile\MDK\Packs\Keil\STM32H7xx_DFP\3.0.0\Drivers\CMSIS\Device\ST\STM32H7xx\Include"-D__UVISION_VERSION="538" -DSTM32H743xx -DUSE_HAL_DRIVER -DSTM32H743xx-o ..\..\output\device_service.o --omf_browse ..\..\output\device_service.crf --depend ..\..\output\device_service.d)
+I (..\..\Core\Bridge\sensor_bridge.h)(0x69FD9790)
+F (..\..\Core\App\device_service.c)(0x69FDA130)(--c99 -c --cpu Cortex-M7.fp.dp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include -I ..\..\Drivers\STM32H7xx_HAL_Driver\Inc -I ..\..\Drivers\CMSIS\Include -I ..\..\Middlewares -I ..\..\Drivers -I ..\..\User -I ..\..\Middlewares\lwip\arch -I ..\..\Middlewares\lwip -I ..\..\Middlewares\lwip\src\include -I ..\..\Middlewares\lwip\lwip_app -I ..\..\Core\App -I ..\..\Core\Bridge -I ..\..\Core\Protocol -I ..\..\Core\Config -I ..\..\Core\Impl -I ..\..\Drivers\BSP\ADC -I ..\..\Drivers\BSP\LED -I ..\..\Drivers\BSP\KEY -I ..\..\Drivers\BSP\LCD -I ..\..\Drivers\BSP\MPU -I ..\..\Drivers\BSP\SDRAM -I ..\..\Drivers\BSP\ETHERNET -I ..\..\Drivers\BSP\PCF8574 -I ..\..\Drivers\BSP\IIC -I ..\..\Drivers\SYSTEM\sys -I ..\..\Drivers\SYSTEM\delay -I ..\..\Drivers\SYSTEM\usart-I"F:\work software\STM32\ProgramFile\MDK\Packs\Keil\STM32H7xx_DFP\3.0.0\Drivers\CMSIS\Device\ST\STM32H7xx\Include"-D__UVISION_VERSION="538" -DSTM32H743xx -DUSE_HAL_DRIVER -DSTM32H743xx-o ..\..\output\device_service.o --omf_browse ..\..\output\device_service.crf --depend ..\..\output\device_service.d)
 I (F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\include\stdio.h)(0x60252374)
 I (F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\include\stdlib.h)(0x60252374)
 I (F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\include\string.h)(0x6025237E)
@@ -6165,7 +6165,7 @@ I (..\..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd_ex.h)(0x666A4AF1)
 I (..\..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_hcd.h)(0x666A4AF1)
 I (..\..\Core\App\device_service.h)(0x69FC2AEF)
 I (..\..\Core\Bridge\comm_bridge.h)(0x69FC62EB)
-I (..\..\Core\Bridge\sensor_bridge.h)(0x69FD3F53)
+I (..\..\Core\Bridge\sensor_bridge.h)(0x69FD9790)
 I (..\..\Middlewares\lwip\arch\lwip_comm.h)(0x69FC3630)
 I (..\..\Drivers\BSP/ETHERNET/ethernet.h)(0x666A5061)
 I (..\..\Drivers\./SYSTEM/sys/sys.h)(0x666A4AF3)
@@ -6204,13 +6204,13 @@ F (..\..\Core\Protocol\protocol_text.c)(0x69FC585C)(--c99 -c --cpu Cortex-M7.fp.
 I (F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\include\stdio.h)(0x60252374)
 I (..\..\Core\Protocol\protocol_text.h)(0x69FD3BAC)
 I (F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\include\stdint.h)(0x6025237E)
-I (..\..\Core\Bridge\sensor_bridge.h)(0x69FD3F53)
+I (..\..\Core\Bridge\sensor_bridge.h)(0x69FD9790)
 F (..\..\Core\Config\net_config.c)(0x69FC39AF)(--c99 -c --cpu Cortex-M7.fp.dp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include -I ..\..\Drivers\STM32H7xx_HAL_Driver\Inc -I ..\..\Drivers\CMSIS\Include -I ..\..\Middlewares -I ..\..\Drivers -I ..\..\User -I ..\..\Middlewares\lwip\arch -I ..\..\Middlewares\lwip -I ..\..\Middlewares\lwip\src\include -I ..\..\Middlewares\lwip\lwip_app -I ..\..\Core\App -I ..\..\Core\Bridge -I ..\..\Core\Protocol -I ..\..\Core\Config -I ..\..\Core\Impl -I ..\..\Drivers\BSP\ADC -I ..\..\Drivers\BSP\LED -I ..\..\Drivers\BSP\KEY -I ..\..\Drivers\BSP\LCD -I ..\..\Drivers\BSP\MPU -I ..\..\Drivers\BSP\SDRAM -I ..\..\Drivers\BSP\ETHERNET -I ..\..\Drivers\BSP\PCF8574 -I ..\..\Drivers\BSP\IIC -I ..\..\Drivers\SYSTEM\sys -I ..\..\Drivers\SYSTEM\delay -I ..\..\Drivers\SYSTEM\usart-I"F:\work software\STM32\ProgramFile\MDK\Packs\Keil\STM32H7xx_DFP\3.0.0\Drivers\CMSIS\Device\ST\STM32H7xx\Include"-D__UVISION_VERSION="538" -DSTM32H743xx -DUSE_HAL_DRIVER -DSTM32H743xx-o ..\..\output\net_config.o --omf_browse ..\..\output\net_config.crf --depend ..\..\output\net_config.d)
 I (F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\include\string.h)(0x6025237E)
 I (..\..\Core\Impl\flash_storage.h)(0x69FC2AEF)
 I (F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\include\stdint.h)(0x6025237E)
 I (..\..\Core\Config\net_config.h)(0x69FC35EE)
-F (..\..\Core\Impl\comm_lwip_tcp.c)(0x69FD3F53)(--c99 -c --cpu Cortex-M7.fp.dp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include -I ..\..\Drivers\STM32H7xx_HAL_Driver\Inc -I ..\..\Drivers\CMSIS\Include -I ..\..\Middlewares -I ..\..\Drivers -I ..\..\User -I ..\..\Middlewares\lwip\arch -I ..\..\Middlewares\lwip -I ..\..\Middlewares\lwip\src\include -I ..\..\Middlewares\lwip\lwip_app -I ..\..\Core\App -I ..\..\Core\Bridge -I ..\..\Core\Protocol -I ..\..\Core\Config -I ..\..\Core\Impl -I ..\..\Drivers\BSP\ADC -I ..\..\Drivers\BSP\LED -I ..\..\Drivers\BSP\KEY -I ..\..\Drivers\BSP\LCD -I ..\..\Drivers\BSP\MPU -I ..\..\Drivers\BSP\SDRAM -I ..\..\Drivers\BSP\ETHERNET -I ..\..\Drivers\BSP\PCF8574 -I ..\..\Drivers\BSP\IIC -I ..\..\Drivers\SYSTEM\sys -I ..\..\Drivers\SYSTEM\delay -I ..\..\Drivers\SYSTEM\usart-I"F:\work software\STM32\ProgramFile\MDK\Packs\Keil\STM32H7xx_DFP\3.0.0\Drivers\CMSIS\Device\ST\STM32H7xx\Include"-D__UVISION_VERSION="538" -DSTM32H743xx -DUSE_HAL_DRIVER -DSTM32H743xx-o ..\..\output\comm_lwip_tcp.o --omf_browse ..\..\output\comm_lwip_tcp.crf --depend ..\..\output\comm_lwip_tcp.d)
+F (..\..\Core\Impl\comm_lwip_tcp.c)(0x69FDA0B9)(--c99 -c --cpu Cortex-M7.fp.dp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include -I ..\..\Drivers\STM32H7xx_HAL_Driver\Inc -I ..\..\Drivers\CMSIS\Include -I ..\..\Middlewares -I ..\..\Drivers -I ..\..\User -I ..\..\Middlewares\lwip\arch -I ..\..\Middlewares\lwip -I ..\..\Middlewares\lwip\src\include -I ..\..\Middlewares\lwip\lwip_app -I ..\..\Core\App -I ..\..\Core\Bridge -I ..\..\Core\Protocol -I ..\..\Core\Config -I ..\..\Core\Impl -I ..\..\Drivers\BSP\ADC -I ..\..\Drivers\BSP\LED -I ..\..\Drivers\BSP\KEY -I ..\..\Drivers\BSP\LCD -I ..\..\Drivers\BSP\MPU -I ..\..\Drivers\BSP\SDRAM -I ..\..\Drivers\BSP\ETHERNET -I ..\..\Drivers\BSP\PCF8574 -I ..\..\Drivers\BSP\IIC -I ..\..\Drivers\SYSTEM\sys -I ..\..\Drivers\SYSTEM\delay -I ..\..\Drivers\SYSTEM\usart-I"F:\work software\STM32\ProgramFile\MDK\Packs\Keil\STM32H7xx_DFP\3.0.0\Drivers\CMSIS\Device\ST\STM32H7xx\Include"-D__UVISION_VERSION="538" -DSTM32H743xx -DUSE_HAL_DRIVER -DSTM32H743xx-o ..\..\output\comm_lwip_tcp.o --omf_browse ..\..\output\comm_lwip_tcp.crf --depend ..\..\output\comm_lwip_tcp.d)
 I (F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\include\string.h)(0x6025237E)
 I (..\..\Core\Impl\comm_lwip_tcp.h)(0x69FC62F9)
 I (F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\include\stdint.h)(0x6025237E)
@@ -6249,7 +6249,7 @@ I (..\..\Middlewares\lwip\src\include\lwip/icmp.h)(0x666A4AF3)
 I (..\..\Middlewares\lwip\src\include\lwip/prot/icmp.h)(0x666A4AF3)
 I (..\..\Core\Bridge\comm_bridge.h)(0x69FC62EB)
 I (..\..\Core\App\device_service.h)(0x69FC2AEF)
-I (..\..\Core\Bridge\sensor_bridge.h)(0x69FD3F53)
+I (..\..\Core\Bridge\sensor_bridge.h)(0x69FD9790)
 F (..\..\Core\Impl\comm_lwip_udp_discover.c)(0x69FC458D)(--c99 -c --cpu Cortex-M7.fp.dp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include -I ..\..\Drivers\STM32H7xx_HAL_Driver\Inc -I ..\..\Drivers\CMSIS\Include -I ..\..\Middlewares -I ..\..\Drivers -I ..\..\User -I ..\..\Middlewares\lwip\arch -I ..\..\Middlewares\lwip -I ..\..\Middlewares\lwip\src\include -I ..\..\Middlewares\lwip\lwip_app -I ..\..\Core\App -I ..\..\Core\Bridge -I ..\..\Core\Protocol -I ..\..\Core\Config -I ..\..\Core\Impl -I ..\..\Drivers\BSP\ADC -I ..\..\Drivers\BSP\LED -I ..\..\Drivers\BSP\KEY -I ..\..\Drivers\BSP\LCD -I ..\..\Drivers\BSP\MPU -I ..\..\Drivers\BSP\SDRAM -I ..\..\Drivers\BSP\ETHERNET -I ..\..\Drivers\BSP\PCF8574 -I ..\..\Drivers\BSP\IIC -I ..\..\Drivers\SYSTEM\sys -I ..\..\Drivers\SYSTEM\delay -I ..\..\Drivers\SYSTEM\usart-I"F:\work software\STM32\ProgramFile\MDK\Packs\Keil\STM32H7xx_DFP\3.0.0\Drivers\CMSIS\Device\ST\STM32H7xx\Include"-D__UVISION_VERSION="538" -DSTM32H743xx -DUSE_HAL_DRIVER -DSTM32H743xx-o ..\..\output\comm_lwip_udp_discover.o --omf_browse ..\..\output\comm_lwip_udp_discover.crf --depend ..\..\output\comm_lwip_udp_discover.d)
 I (F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\include\stdio.h)(0x60252374)
 I (F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\include\string.h)(0x6025237E)
@@ -6396,16 +6396,17 @@ I (..\..\Middlewares\lwip\src\include\lwip/prot/ethernet.h)(0x666A4AF3)
 I (..\..\Middlewares\lwip\src\include\lwip/prot/ieee.h)(0x666A4AF3)
 I (..\..\Middlewares\lwip\src\include\lwip/prot/etharp.h)(0x666A4AF3)
 I (..\..\Middlewares\lwip\src\include\netif/ethernet.h)(0x666A4AF3)
-F (..\..\Core\Impl\sensor_adc_dma.c)(0x69FC5806)(--c99 -c --cpu Cortex-M7.fp.dp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include -I ..\..\Drivers\STM32H7xx_HAL_Driver\Inc -I ..\..\Drivers\CMSIS\Include -I ..\..\Middlewares -I ..\..\Drivers -I ..\..\User -I ..\..\Middlewares\lwip\arch -I ..\..\Middlewares\lwip -I ..\..\Middlewares\lwip\src\include -I ..\..\Middlewares\lwip\lwip_app -I ..\..\Core\App -I ..\..\Core\Bridge -I ..\..\Core\Protocol -I ..\..\Core\Config -I ..\..\Core\Impl -I ..\..\Drivers\BSP\ADC -I ..\..\Drivers\BSP\LED -I ..\..\Drivers\BSP\KEY -I ..\..\Drivers\BSP\LCD -I ..\..\Drivers\BSP\MPU -I ..\..\Drivers\BSP\SDRAM -I ..\..\Drivers\BSP\ETHERNET -I ..\..\Drivers\BSP\PCF8574 -I ..\..\Drivers\BSP\IIC -I ..\..\Drivers\SYSTEM\sys -I ..\..\Drivers\SYSTEM\delay -I ..\..\Drivers\SYSTEM\usart-I"F:\work software\STM32\ProgramFile\MDK\Packs\Keil\STM32H7xx_DFP\3.0.0\Drivers\CMSIS\Device\ST\STM32H7xx\Include"-D__UVISION_VERSION="538" -DSTM32H743xx -DUSE_HAL_DRIVER -DSTM32H743xx-o ..\..\output\sensor_adc_dma.o --omf_browse ..\..\output\sensor_adc_dma.crf --depend ..\..\output\sensor_adc_dma.d)
+F (..\..\Core\Impl\sensor_adc_dma.c)(0x69FDA116)(--c99 -c --cpu Cortex-M7.fp.dp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include -I ..\..\Drivers\STM32H7xx_HAL_Driver\Inc -I ..\..\Drivers\CMSIS\Include -I ..\..\Middlewares -I ..\..\Drivers -I ..\..\User -I ..\..\Middlewares\lwip\arch -I ..\..\Middlewares\lwip -I ..\..\Middlewares\lwip\src\include -I ..\..\Middlewares\lwip\lwip_app -I ..\..\Core\App -I ..\..\Core\Bridge -I ..\..\Core\Protocol -I ..\..\Core\Config -I ..\..\Core\Impl -I ..\..\Drivers\BSP\ADC -I ..\..\Drivers\BSP\LED -I ..\..\Drivers\BSP\KEY -I ..\..\Drivers\BSP\LCD -I ..\..\Drivers\BSP\MPU -I ..\..\Drivers\BSP\SDRAM -I ..\..\Drivers\BSP\ETHERNET -I ..\..\Drivers\BSP\PCF8574 -I ..\..\Drivers\BSP\IIC -I ..\..\Drivers\SYSTEM\sys -I ..\..\Drivers\SYSTEM\delay -I ..\..\Drivers\SYSTEM\usart-I"F:\work software\STM32\ProgramFile\MDK\Packs\Keil\STM32H7xx_DFP\3.0.0\Drivers\CMSIS\Device\ST\STM32H7xx\Include"-D__UVISION_VERSION="538" -DSTM32H743xx -DUSE_HAL_DRIVER -DSTM32H743xx-o ..\..\output\sensor_adc_dma.o --omf_browse ..\..\output\sensor_adc_dma.crf --depend ..\..\output\sensor_adc_dma.d)
+I (F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\include\stdint.h)(0x6025237E)
+I (F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\include\string.h)(0x6025237E)
 I (..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include\stm32h743xx.h)(0x666A4AF0)
 I (..\..\Drivers\CMSIS\Include\core_cm7.h)(0x666A4AF0)
-I (F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\include\stdint.h)(0x6025237E)
 I (..\..\Drivers\CMSIS\Include\cmsis_version.h)(0x666A4AF0)
 I (..\..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x666A4AF0)
 I (..\..\Drivers\CMSIS\Include\cmsis_armcc.h)(0x666A4AF0)
 I (..\..\Drivers\CMSIS\Include\mpu_armv7.h)(0x666A4AF0)
 I (..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include\system_stm32h7xx.h)(0x666A4AF0)
-I (..\..\Drivers\BSP\ADC\adc.h)(0x681C5B85)
+I (..\..\Drivers\BSP\ADC\adc.h)(0x69FD9712)
 I (..\..\Drivers\./SYSTEM/sys/sys.h)(0x666A4AF3)
 I (..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include\stm32h7xx.h)(0x666A4AF0)
 I (..\..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal.h)(0x666A4AF0)
@@ -6504,7 +6505,7 @@ I (..\..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_ll_usb.h)(0x666A4AF2)
 I (..\..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd_ex.h)(0x666A4AF1)
 I (..\..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_hcd.h)(0x666A4AF1)
 I (..\..\Core\Impl\sensor_adc_dma.h)(0x69FC2B01)
-I (..\..\Core\Bridge\sensor_bridge.h)(0x69FD3F53)
+I (..\..\Core\Bridge\sensor_bridge.h)(0x69FD9790)
 F (..\..\Core\Impl\flash_storage.c)(0x69FC3B7F)(--c99 -c --cpu Cortex-M7.fp.dp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include -I ..\..\Drivers\STM32H7xx_HAL_Driver\Inc -I ..\..\Drivers\CMSIS\Include -I ..\..\Middlewares -I ..\..\Drivers -I ..\..\User -I ..\..\Middlewares\lwip\arch -I ..\..\Middlewares\lwip -I ..\..\Middlewares\lwip\src\include -I ..\..\Middlewares\lwip\lwip_app -I ..\..\Core\App -I ..\..\Core\Bridge -I ..\..\Core\Protocol -I ..\..\Core\Config -I ..\..\Core\Impl -I ..\..\Drivers\BSP\ADC -I ..\..\Drivers\BSP\LED -I ..\..\Drivers\BSP\KEY -I ..\..\Drivers\BSP\LCD -I ..\..\Drivers\BSP\MPU -I ..\..\Drivers\BSP\SDRAM -I ..\..\Drivers\BSP\ETHERNET -I ..\..\Drivers\BSP\PCF8574 -I ..\..\Drivers\BSP\IIC -I ..\..\Drivers\SYSTEM\sys -I ..\..\Drivers\SYSTEM\delay -I ..\..\Drivers\SYSTEM\usart-I"F:\work software\STM32\ProgramFile\MDK\Packs\Keil\STM32H7xx_DFP\3.0.0\Drivers\CMSIS\Device\ST\STM32H7xx\Include"-D__UVISION_VERSION="538" -DSTM32H743xx -DUSE_HAL_DRIVER -DSTM32H743xx-o ..\..\output\flash_storage.o --omf_browse ..\..\output\flash_storage.crf --depend ..\..\output\flash_storage.d)
 I (F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\include\string.h)(0x6025237E)
 I (..\..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal.h)(0x666A4AF0)
@@ -6614,4 +6615,4 @@ I (..\..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_hcd.h)(0x666A4AF1)
 I (..\..\Core\Impl\flash_storage.h)(0x69FC2AEF)
 F (..\..\readme.txt)(0x69FC1D8D)()
 F (..\..\Core\Bridge\comm_bridge.h)(0x69FC62EB)()
-F (..\..\Core\Bridge\sensor_bridge.h)(0x69FD3F53)()
+F (..\..\Core\Bridge\sensor_bridge.h)(0x69FD9790)()

@@ -21,6 +21,7 @@
 
 /* ADC 主动上报周期。该周期属于业务策略，不属于 ADC 驱动或 TCP 驱动。 */
 #define DEVICE_SERVICE_ADC_SEND_INTERVAL  0U
+#define DEVICE_SERVICE_ADC_SEND_BURST_MAX 4U
 #define DEVICE_SERVICE_RX_LINE_SIZE       192U
 
 
@@ -409,6 +410,7 @@ void device_service_init(const comm_bridge_t *aComm, const sensor_bridge_t *aSen
 void device_service_poll(void)
 {
 	int len;
+	uint8_t burst_count;
 
 	/* 防御式检查：底层桥接未绑定时直接返回，避免访问空指针。 */
 	if ((s_comm == 0) || (s_sensor == 0) ||
@@ -432,25 +434,38 @@ void device_service_poll(void)
 	s_adc_send_tick = HAL_GetTick();
 #endif /* DEVICE_SERVICE_ADC_SEND_INTERVAL > 0U */
 
-	if (!s_comm->can_send(PROTOCOL_ADC_BINARY_FRAME_SIZE))
+	for (burst_count = 0U; burst_count < DEVICE_SERVICE_ADC_SEND_BURST_MAX; ++burst_count)
 	{
-		return;
-	}
+		if (!s_comm->can_send(PROTOCOL_ADC_BINARY_FRAME_SIZE))
+		{
+			break;
+		}
 
-	/* 仅当 DMA 已经完成一批采集时才会读取成功。 */
-	if (s_sensor->read(&s_adc_sample) != 0)
-	{
-		return;
-	}
+		if (s_sensor->read(&s_adc_sample) != 0)
+		{
+			break;
+		}
 
-	len = protocol_text_format_adc_binary(&s_adc_sample,
-										  s_adc_frame_seq,
-										  s_adc_frame,
-										  sizeof(s_adc_frame));
+		if (s_adc_sample.capture_seq != 0UL)
+		{
+			s_adc_frame_seq = s_adc_sample.capture_seq;
+		}
 
-	if ((len > 0) && (len <= (int)sizeof(s_adc_frame)))
-	{
-		(void)s_comm->send(s_adc_frame, (uint16_t)len);
+		len = protocol_text_format_adc_binary(&s_adc_sample,
+											  s_adc_frame_seq,
+											  s_adc_frame,
+											  sizeof(s_adc_frame));
+
+		if ((len <= 0) || (len > (int)sizeof(s_adc_frame)))
+		{
+			break;
+		}
+
+		if (s_comm->send(s_adc_frame, (uint16_t)len) != 0)
+		{
+			break;
+		}
+
 		++s_adc_frame_seq;
 	}
 }

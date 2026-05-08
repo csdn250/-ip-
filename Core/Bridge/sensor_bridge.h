@@ -36,6 +36,8 @@ typedef struct
 	uint32_t mv[SENSOR_ADC_CHANNEL_NUM];
 	uint16_t samples[SENSOR_ADC_FRAME_SAMPLE_NUM];
 	uint16_t sample_count;
+	uint32_t capture_seq;
+	uint32_t drop_count;
 } adc_sample_t;
 
 

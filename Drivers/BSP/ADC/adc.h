@@ -56,7 +56,13 @@
                                                                           * 这是一个假函数形式，不能当函数使用
                                                                           */
 
+#define ADC_ADCX_DMASx_IS_HT()              ( DMA1->HISR & (1 << 26) )   /* 获取DMA1 Stream7半传输完成标志位 */
+
 #define ADC_ADCX_DMASx_CLR_TC()             do{ DMA1->HIFCR |= 1 << 27; }while(0)            /* 清除DMA1 Stream7传输完成标志位 */
+#define ADC_ADCX_DMASx_CLR_HT()             do{ DMA1->HIFCR |= 1 << 26; }while(0)            /* 清除DMA1 Stream7半传输完成标志位 */
+
+#define ADC_DMA_STA_HALF_READY              0x01U
+#define ADC_DMA_STA_FULL_READY              0x02U
 
 /******************************************************************************************/
 
@@ -68,6 +74,12 @@ void adc_dma_init(uint32_t par, uint32_t mar);                           /* ADC 
 void adc_dma_enable(uint16_t ndtr);                                      /* 使能一次ADC DMA采集传输 */
 
 void adc_nch_dma_init(uint32_t par, uint32_t mar);                       /* ADC多通道 DMA采集初始化 */
+
+extern volatile uint8_t g_adc_dma_sta;
+extern volatile uint32_t g_adc_dma_block_seq;
+extern volatile uint32_t g_adc_dma_half_seq;
+extern volatile uint32_t g_adc_dma_full_seq;
+extern volatile uint32_t g_adc_dma_drop_count;
 
 #endif 
 

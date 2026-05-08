@@ -16,7 +16,7 @@
 #include "device_service.h"
 
 
-#define COMM_LWIP_TCP_TX_SLOT_NUM   2U
+#define COMM_LWIP_TCP_TX_SLOT_NUM   4U
 #define COMM_LWIP_TCP_TX_SLOT_SIZE  1460U
 
 

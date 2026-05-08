@@ -135,7 +135,11 @@ uint32_t adc_get_result_average(uint32_t ch, uint8_t times)
 ADC_HandleTypeDef g_adc_dma_handle;     /* 与DMA关联的ADC句柄 */
 DMA_HandleTypeDef g_dma_adc_handle;     /* 与ADC关联的DMA句柄 */
 
-uint8_t g_adc_dma_sta = 0;              /* DMA传输状态标志, 0,未完成; 1, 已完成 */
+volatile uint8_t g_adc_dma_sta = 0;              /* DMA半区/全区完成标志 */
+volatile uint32_t g_adc_dma_block_seq = 0;       /* ADC DMA采集块序号，每完成半区或全区递增一次 */
+volatile uint32_t g_adc_dma_half_seq = 0;        /* 当前半区对应的采集块序号 */
+volatile uint32_t g_adc_dma_full_seq = 0;        /* 当前全区对应的采集块序号 */
+volatile uint32_t g_adc_dma_drop_count = 0;      /* 业务层来不及取走导致的覆盖次数 */
 
 /**
  * @brief       ADC DMA读取 初始化函数
@@ -176,7 +180,7 @@ void adc_dma_init(uint32_t par, uint32_t mar)
     g_dma_adc_handle.Init.MemInc = DMA_MINC_ENABLE;                             /* 存储器增量模式 */
     g_dma_adc_handle.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;        /* 外设数据长度:16位 */
     g_dma_adc_handle.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;           /* 存储器数据长度:16位 */
-    g_dma_adc_handle.Init.Mode = DMA_NORMAL;                                    /* 外设流控模式 */
+    g_dma_adc_handle.Init.Mode = DMA_CIRCULAR;                                  /* 循环模式，ADC连续采样 */
     g_dma_adc_handle.Init.Priority = DMA_PRIORITY_MEDIUM;                       /* 中等优先级 */
     g_dma_adc_handle.Init.FIFOMode = DMA_FIFOMODE_DISABLE;                      /* 禁止FIFO*/
     HAL_DMA_Init(&g_dma_adc_handle);                                            /* 初始化DMA */
@@ -199,7 +203,7 @@ void adc_dma_init(uint32_t par, uint32_t mar)
     g_adc_dma_handle.Init.Overrun = ADC_OVR_DATA_OVERWRITTEN;                   /* 有新的数据的死后直接覆盖掉旧数据 */
     g_adc_dma_handle.Init.OversamplingMode = DISABLE;                           /* 过采样关闭 */
     g_adc_dma_handle.Init.LeftBitShift = ADC_LEFTBITSHIFT_NONE;                 /* 设置ADC转换结果的左移位数 */
-    g_adc_dma_handle.Init.ConversionDataManagement = ADC_CONVERSIONDATA_DMA_ONESHOT;     /* DMA单次传输ADC数据 */
+    g_adc_dma_handle.Init.ConversionDataManagement = ADC_CONVERSIONDATA_DMA_CIRCULAR;    /* DMA循环传输ADC数据 */
     HAL_ADC_Init(&g_adc_dma_handle);                                            /* 初始化 */
 
     HAL_ADCEx_Calibration_Start(&g_adc_dma_handle, ADC_CALIB_OFFSET, ADC_SINGLE_ENDED);   /* ADC校准 */
@@ -276,7 +280,7 @@ void adc_nch_dma_init(uint32_t par, uint32_t mar)
     g_dma_nch_adc_handle.Init.MemInc = DMA_MINC_ENABLE;                             /* 存储器增量模式 */
     g_dma_nch_adc_handle.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;        /* 外设数据长度:16位 */
     g_dma_nch_adc_handle.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;           /* 存储器数据长度:16位 */
-    g_dma_nch_adc_handle.Init.Mode = DMA_NORMAL;                                    /* 外设流控模式 */
+    g_dma_nch_adc_handle.Init.Mode = DMA_CIRCULAR;                                  /* 循环模式，ADC连续采样 */
     g_dma_nch_adc_handle.Init.Priority = DMA_PRIORITY_MEDIUM;                       /* 中等优先级 */
     g_dma_nch_adc_handle.Init.FIFOMode = DMA_FIFOMODE_DISABLE;                      /* 禁止FIFO*/
     HAL_DMA_Init(&g_dma_nch_adc_handle);                                            /* 初始化DMA */
@@ -299,7 +303,7 @@ void adc_nch_dma_init(uint32_t par, uint32_t mar)
     g_adc_nch_dma_handle.Init.Overrun = ADC_OVR_DATA_OVERWRITTEN;                   /* 有新的数据的死后直接覆盖掉旧数据 */
     g_adc_nch_dma_handle.Init.OversamplingMode = DISABLE;                           /* 过采样关闭 */
     g_adc_nch_dma_handle.Init.LeftBitShift = ADC_LEFTBITSHIFT_NONE;                 /* 设置ADC转换结果的左移位数 */
-    g_adc_nch_dma_handle.Init.ConversionDataManagement = ADC_CONVERSIONDATA_DMA_ONESHOT;     /* DMA单次传输ADC数据 */
+    g_adc_nch_dma_handle.Init.ConversionDataManagement = ADC_CONVERSIONDATA_DMA_CIRCULAR;    /* DMA循环传输ADC数据 */
     HAL_ADC_Init(&g_adc_nch_dma_handle);                                            /* 初始化 */
 
     HAL_ADCEx_Calibration_Start(&g_adc_nch_dma_handle, ADC_CALIB_OFFSET, ADC_SINGLE_ENDED); /* ADC校准 */
@@ -348,13 +352,25 @@ void adc_dma_enable(uint16_t ndtr)
 
     ADC_ADCX_DMASx->CR &= ~(1 << 0);    /* 关闭DMA传输 */
     while (ADC_ADCX_DMASx->CR & 0X1);   /* 确保DMA可以被设置 */
+    ADC_ADCX_DMASx_CLR_HT();
+    ADC_ADCX_DMASx_CLR_TC();
     ADC_ADCX_DMASx->NDTR = ndtr;        /* 要传输的数据项数目 */
+    ADC_ADCX_DMASx->CR |= DMA_IT_HT | DMA_IT_TC;
     ADC_ADCX_DMASx->CR |= 1 << 0;       /* 开启DMA传输 */
  
     ADC_ADCX->CR |= 1 << 0;             /* 重新启动ADC */
     ADC_ADCX->CR |= 1 << 2;             /* 启动常规转换通道 */
 }
 
+__weak void adc_dma_half_transfer_callback(uint32_t seq)
+{
+    (void)seq;
+}
+
+__weak void adc_dma_full_transfer_callback(uint32_t seq)
+{
+    (void)seq;
+}
 /**
  * @brief       ADC DMA采集中断服务函数
  * @param       无
@@ -362,9 +378,29 @@ void adc_dma_enable(uint16_t ndtr)
  */
 void ADC_ADCX_DMASx_IRQHandler(void)
 {
+    if (ADC_ADCX_DMASx_IS_HT())         /* 判断DMA半区传输完成 */
+    {
+        if (g_adc_dma_sta & ADC_DMA_STA_HALF_READY)
+        {
+            ++g_adc_dma_drop_count;
+        }
+
+        g_adc_dma_half_seq = ++g_adc_dma_block_seq;
+        g_adc_dma_sta |= ADC_DMA_STA_HALF_READY;
+        adc_dma_half_transfer_callback(g_adc_dma_half_seq);
+        ADC_ADCX_DMASx_CLR_HT();        /* 清除DMA1 数据流7 半传输完成中断 */
+    }
+
     if (ADC_ADCX_DMASx_IS_TC())         /* 判断DMA数据传输完成 */
     {
-        g_adc_dma_sta = 1;              /* 标记DMA传输完成 */
+        if (g_adc_dma_sta & ADC_DMA_STA_FULL_READY)
+        {
+            ++g_adc_dma_drop_count;
+        }
+
+        g_adc_dma_full_seq = ++g_adc_dma_block_seq;
+        g_adc_dma_sta |= ADC_DMA_STA_FULL_READY;
+        adc_dma_full_transfer_callback(g_adc_dma_full_seq);
         ADC_ADCX_DMASx_CLR_TC();        /* 清除DMA1 数据流7 传输完成中断 */
     }
 }

@@ -1,7 +1,8 @@
 ..\..\output\sensor_adc_dma.o: ..\..\Core\Impl\sensor_adc_dma.c
+..\..\output\sensor_adc_dma.o: F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\Bin\..\include\stdint.h
+..\..\output\sensor_adc_dma.o: F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\Bin\..\include\string.h
 ..\..\output\sensor_adc_dma.o: ..\..\Drivers\CMSIS\Device\ST\STM32H7xx\Include\stm32h743xx.h
 ..\..\output\sensor_adc_dma.o: ..\..\Drivers\CMSIS\Include\core_cm7.h
-..\..\output\sensor_adc_dma.o: F:\work software\STM32\ProgramFile\MDK\Core\ARM\ARMCC\Bin\..\include\stdint.h
 ..\..\output\sensor_adc_dma.o: ..\..\Drivers\CMSIS\Include\cmsis_version.h
 ..\..\output\sensor_adc_dma.o: ..\..\Drivers\CMSIS\Include\cmsis_compiler.h
 ..\..\output\sensor_adc_dma.o: ..\..\Drivers\CMSIS\Include\cmsis_armcc.h
